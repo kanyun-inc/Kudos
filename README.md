@@ -110,7 +110,7 @@ buildscript {
     repositories {
         mavenCentral()
         // for snapshots
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
     dependencies {
         classpath("com.kanyun.kudos:kudos-gradle-plugin:$latest_version")
@@ -121,7 +121,7 @@ subprojects {
     repositories {
         mavenCentral()
         // for snapshots
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
@@ -131,7 +131,7 @@ pluginManagement {
     repositories {
         mavenCentral()
         // for snapshots
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
     plugins {
         id("com.kanyun.kudos") version "$latest_version" apply false
@@ -142,7 +142,7 @@ dependencyResolutionManagement {
     repositories {
         mavenCentral()
         // for snapshots
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
 }
 ````
