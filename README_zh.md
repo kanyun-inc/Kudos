@@ -250,7 +250,14 @@ val list = kudosGson().fromJson("""[null]""", typeOf<KudosList<User>>().javaType
 
 在解析 JSON 时，考虑到冷启动的初始化耗时的情况，Kudos.Gson 比 Moshi 在大部分测试下性能更优（只有在多次解析同一数据类型时 Moshi 性能表现更好），因此 Kudos.Gson 在低频次的 JSON 解析场景下兼具了运行性能（优于 Moshi）和数据安全（优于 Gson）的优点。
 
->**说明** 详细数据和原始的测试工程仍然在开发当中，后续再进行补充。
+|               | small json     | medium json    | large json     |
+|---------------|----------------|----------------|----------------|
+| Gson          | 412,375   ns   | 1,374,838   ns | 3,641,904   ns |
+| Kudos-Gson    | 517,123   ns   | 1,686,568   ns | 4,311,910   ns |
+| Jackson       | 1,035,010   ns | 1,750,709   ns | 3,450,974   ns |
+| Kudos-Jackson | 1,261,026   ns | 2,030,874   ns | 3,939,600   ns |
+
+更多细节可见：[https://github.com/RicardoJiang/json-benchmark](https://github.com/RicardoJiang/json-benchmark)
 
 ## 版本兼容
 
