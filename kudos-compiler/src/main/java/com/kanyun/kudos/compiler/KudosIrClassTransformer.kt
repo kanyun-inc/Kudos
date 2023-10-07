@@ -83,7 +83,7 @@ class KudosIrClassTransformer(
     private val defaults = HashSet<String>()
 
     fun transform() {
-        if (Options.isGsonEnabled()) {
+        if (Options.gson()) {
             generateJsonAdapter()
         }
         generateNoArgConstructor()

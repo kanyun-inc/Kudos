@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    java
+    kotlin("jvm") version "1.8.20"
+    id("com.kanyun.kudos")
+}
 
-package com.kanyun.kudos.compiler.options
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
+}
 
-object Options {
+kudos {
+    gson = true
+    jackson = true
+}
 
-    @JvmField
-    val gson = Option(
-        "gson",
-        false,
-        "Whether to enable the support for Gson.",
-        "<true/false>",
-    )
-
-    @JvmField
-    val jackson = Option(
-        "jackson",
-        false,
-        "Whether to enable the support for Jackson.",
-        "<true/false>",
-    )
-
-    val all = Options::class.java.declaredFields.filter {
-        it.type == Option::class.java
-    }.map {
-        it.get(null) as Option<*>
-    }
+dependencies {
+    implementation("com.google.code.gson:gson:2.10")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    testImplementation("junit:junit:4.13.1")
 }

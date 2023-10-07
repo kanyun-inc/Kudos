@@ -60,7 +60,7 @@ class KudosDeclarationChecker(
             } else {
                 checkInitBlock(context, declaration)
                 checkNoArg(descriptor, context, declaration)
-                if (Options.isGsonEnabled()) {
+                if (Options.gson()) {
                     checkJsonAdapter(descriptor, context, declaration)
                 }
                 checkPrimaryConstructor(declaration, context)

@@ -16,7 +16,7 @@
 
 package com.kanyun.kudos.gradle
 
-import com.kanyun.kudos.kudos.BuildConfig
+import com.kanyun.kudos.BuildConfig
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.provider.Provider
@@ -70,10 +70,10 @@ open class KudosGradlePlugin : KotlinCompilerPluginSupportPlugin {
         val kudosExtension = project.extensions.getByType(KudosExtension::class.java)
         val options = ArrayList<SubpluginOption>()
         if (kudosExtension.gson) {
-            options += SubpluginOption("isGsonEnabled", "true")
+            options += SubpluginOption("gson", "true")
         }
         if (kudosExtension.jackson) {
-            options += SubpluginOption("isJacksonEnabled", "true")
+            options += SubpluginOption("jackson", "true")
         }
         return project.provider { options }
     }

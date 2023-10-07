@@ -101,7 +101,9 @@ We kept thinking, is there a way to provide null safety and default values suppo
 
 ## Quick Start
 
-### 1. Add the plugin to classpath
+### 1. Introduce Kudos into Gradle Projects
+
+#### 1.1 Add the plugin to classpath
 
 ```kotlin
 // Option 1
@@ -147,7 +149,7 @@ dependencyResolutionManagement {
 }
 ````
 
-### 2. Apply the plugin
+#### 1.2 Apply the plugin
 
 ```kotlin
 plugins {
@@ -178,6 +180,97 @@ com.kanyun.kudos:kudos-jackson
 ```
 
 You can add these libraries to your dependencies explicitly if needed.
+
+### 2. Introduce Kudos into Maven Projects
+
+#### 2.1 Project Dependencies
+
+Add `kudos-gson` or `kudos-jackson` into the dependencies of your project. 
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    ...
+    <dependencies>
+        ...
+        <!-- for gson -->
+        <dependency>
+            <groupId>com.kanyun.kudos</groupId>
+            <artifactId>kudos-gson</artifactId>
+            <version>${kudos.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10</version>
+        </dependency>
+
+        <!-- for jackson -->
+        <dependency>
+            <groupId>com.kanyun.kudos</groupId>
+            <artifactId>kudos-jackson</artifactId>
+            <version>${kudos.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+    </dependencies>
+    ...
+</project>
+```
+
+#### 2.2 Configure the Compiler
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    ...
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+
+                <configuration>
+                    <compilerPlugins>
+                        <!-- Tell Kotlin compiler to load Kudos compiler plugin -->
+                        <plugin>kudos</plugin>
+                    </compilerPlugins>
+
+                    <pluginOptions>
+                        <!-- for gson -->
+                        <option>kudos:gson=true</option>
+                        <!-- for jackson -->
+                        <option>kudos:jackson=true</option>
+                    </pluginOptions>
+                </configuration>
+
+                <dependencies>
+                    <!-- add Kudos compiler plugin to the classpath of Kotlin compiler -->
+                    <dependency>
+                        <groupId>com.kanyun.kudos</groupId>
+                        <artifactId>kudos-maven-plugin</artifactId>
+                        <version>${kudos.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <executions>...</executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+```
 
 ### 3. Annotate classes with `@Kudos`
 
