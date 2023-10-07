@@ -16,10 +16,9 @@
 
 package com.kanyun.kudos.compiler
 
-import com.google.auto.service.AutoService
+import com.kanyun.kudos.BuildConfig
 import com.kanyun.kudos.compiler.options.Option
 import com.kanyun.kudos.compiler.options.Options
-import com.kanyun.kudos.gson.extensions.BuildConfig
 import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
 import org.jetbrains.kotlin.compiler.plugin.CliOption
 import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
@@ -27,7 +26,6 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 
 @OptIn(ExperimentalCompilerApi::class)
-@AutoService(CommandLineProcessor::class)
 class KudosCommandLineProcessor : CommandLineProcessor {
 
     override val pluginId: String = BuildConfig.KOTLIN_PLUGIN_ID

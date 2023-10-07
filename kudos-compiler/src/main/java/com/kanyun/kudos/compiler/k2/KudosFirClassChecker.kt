@@ -73,7 +73,7 @@ class KudosFirClassChecker(
             } else {
                 checkInitBlock(declaration, context, reporter)
                 checkNoArg(declaration, context, reporter)
-                if (Options.isGsonEnabled()) {
+                if (Options.gson()) {
                     checkJsonAdapter(declaration, context, reporter)
                 }
                 checkPrimaryConstructor(declaration, context, reporter)

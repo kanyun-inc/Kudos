@@ -19,7 +19,6 @@ plugins {
     kotlin("jvm")
     java
     id("com.bennyhuo.kotlin.trimindent")
-    kotlin("kapt")
     id("com.github.gmazzo.buildconfig")
     id("com.bennyhuo.kotlin.plugin.embeddable.test")
 }
@@ -32,9 +31,6 @@ tasks.withType<Test> {
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib")
     compileOnly("org.jetbrains.kotlin:kotlin-compiler")
-
-    kapt("com.google.auto.service:auto-service:1.0.1")
-    compileOnly("com.google.auto.service:auto-service-annotations:1.0.1")
 
     implementation("org.jetbrains.kotlin:kotlin-noarg:1.8.20")
 
@@ -55,6 +51,6 @@ compileKotlin.kotlinOptions.freeCompilerArgs += listOf(
 compileKotlin.kotlinOptions.jvmTarget = "1.8"
 
 buildConfig {
-    packageName("$group.gson.extensions")
+    packageName("$group")
     buildConfigField("String", "KOTLIN_PLUGIN_ID", "\"${project.property("KOTLIN_PLUGIN_ID")}\"")
 }

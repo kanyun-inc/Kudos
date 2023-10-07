@@ -101,7 +101,9 @@ User(id=12, name=Benny Huo, age=0, tel=null)
 
 ## 快速上手
 
-### 1. 添加插件到 classpath
+### 1. 将 Kudos 集成到 Gradle 项目中
+
+#### 1.1 添加插件到 classpath
 
 ```kotlin
 // 方式 1
@@ -147,7 +149,7 @@ dependencyResolutionManagement {
 }
 ````
 
-### 2. 在项目中启用插件
+#### 1.2 在项目中启用插件
 
 ```kotlin
 plugins {
@@ -178,6 +180,97 @@ com.kanyun.kudos:kudos-jackson
 ```
 
 当然，开发者也可以在合适的场景下手动引入这些依赖。
+
+### 2. 将 Kudos 集成到 Maven 项目中
+
+#### 2.1 添加项目依赖
+
+将 `kudos-gson` 或者 `kudos-jackson` 添加到你的项目依赖中。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    ...
+    <dependencies>
+        ...
+        <!-- for gson -->
+        <dependency>
+            <groupId>com.kanyun.kudos</groupId>
+            <artifactId>kudos-gson</artifactId>
+            <version>${kudos.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10</version>
+        </dependency>
+
+        <!-- for jackson -->
+        <dependency>
+            <groupId>com.kanyun.kudos</groupId>
+            <artifactId>kudos-jackson</artifactId>
+            <version>${kudos.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+    </dependencies>
+    ...
+</project>
+```
+
+#### 2.2 配置编译器插件
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    ...
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+
+                <configuration>
+                    <compilerPlugins>
+                        <!-- Kotlin 编译器会根据配置加载 Kudos 插件 -->
+                        <plugin>kudos</plugin>
+                    </compilerPlugins>
+
+                    <pluginOptions>
+                        <!-- for gson -->
+                        <option>kudos:gson=true</option>
+                        <!-- for jackson -->
+                        <option>kudos:jackson=true</option>
+                    </pluginOptions>
+                </configuration>
+
+                <dependencies>
+                    <!-- 将 Kudos 插件添加到 Kotlin 编译器的 classpath 中 -->
+                    <dependency>
+                        <groupId>com.kanyun.kudos</groupId>
+                        <artifactId>kudos-maven-plugin</artifactId>
+                        <version>${kudos.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <executions>...</executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+```
 
 ### 3. 为特定类启动 Kudos 的支持
 

@@ -39,5 +39,8 @@ jobs:
       - name: Publish To Local
         run: ./gradlew publishToMavenLocal -PVERSION_NAME=0.0.0-SNAPSHOT
 
+      - name: Run integration tests
+        run: bash .github/scripts/integration_tests.sh
+
       - name: Check spotless
         run: ./gradlew spotlessCheck --no-configuration-cache

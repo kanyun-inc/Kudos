@@ -57,7 +57,7 @@ open class TestBase {
     }
 
     private fun gsonDeserialize(): String {
-        Options.isGsonEnabled.set(true)
+        Options.gson.set(true)
 
         return """
             // FILE: Gson.kt

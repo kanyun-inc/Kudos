@@ -26,7 +26,7 @@ dependencies {
 
 buildConfig {
     val compilerPluginProject = project(":kudos-compiler-embeddable")
-    packageName("${compilerPluginProject.group}.kudos")
+    packageName("${compilerPluginProject.group}")
     buildConfigField("String", "KOTLIN_PLUGIN_ID", "\"${property("KOTLIN_PLUGIN_ID")}\"")
     buildConfigField("String", "KOTLIN_PLUGIN_GROUP", "\"${compilerPluginProject.group}\"")
     buildConfigField("String", "KOTLIN_PLUGIN_NAME", "\"${compilerPluginProject.name}\"")
