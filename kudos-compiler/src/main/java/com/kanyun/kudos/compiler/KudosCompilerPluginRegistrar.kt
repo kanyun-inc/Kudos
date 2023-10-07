@@ -16,7 +16,6 @@
 
 package com.kanyun.kudos.compiler
 
-import com.google.auto.service.AutoService
 import com.kanyun.kudos.compiler.k1.KudosComponentContainerContributor
 import com.kanyun.kudos.compiler.k1.KudosSyntheticResolveExtension
 import com.kanyun.kudos.compiler.k2.KudosFirExtensionRegistrar
@@ -36,7 +35,6 @@ import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 lateinit var logger: Logger
 
 @OptIn(ExperimentalCompilerApi::class)
-@AutoService(CompilerPluginRegistrar::class)
 class KudosCompilerPluginRegistrar : CompilerPluginRegistrar() {
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
