@@ -10,7 +10,7 @@ getProp(){
 publishVersion=$(getProp VERSION_NAME)
 snapshotSuffix='SNAPSHOT'
 
-./gradlew publishAllPublicationsToMavenCentral
+./gradlew publishAllPublicationsToMavenCentral -PGSON_VERSION=2.4 -PJACKSON_VERSION=2.12.0
 if [[ "$publishVersion" != *"$snapshotSuffix"* ]]; then
   echo "auto release artifacts of ${publishVersion}"
   ./gradlew closeAndReleaseRepository
