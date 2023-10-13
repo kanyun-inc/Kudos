@@ -39,7 +39,7 @@ dependencies {
     testImplementation(project(":kudos-jackson"))
     testImplementation("org.jetbrains.kotlin:kotlin-noarg:1.8.20")
     testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable")
-    testImplementation("com.bennyhuo.kotlin:kotlin-compile-testing-extensions:1.8.20-1.2.1")
+    testImplementation("com.bennyhuo.kotlin:kotlin-compile-testing-extensions:1.8.20-1.2.2")
 }
 
 val compileKotlin: KotlinCompile by tasks
