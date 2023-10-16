@@ -3,3 +3,4 @@ build
 .gradle
 *.iml
 composite_build.local
+local.properties
