@@ -17,6 +17,7 @@
 package com.kanyun.kudos.compiler
 
 import com.kanyun.kudos.compiler.k1.KudosComponentContainerContributor
+import com.kanyun.kudos.compiler.k1.KudosJsonAdapterSyntheticResolveExtension
 import com.kanyun.kudos.compiler.k1.KudosSyntheticResolveExtension
 import com.kanyun.kudos.compiler.k2.KudosFirExtensionRegistrar
 import com.kanyun.kudos.compiler.options.Option
@@ -49,6 +50,7 @@ class KudosCompilerPluginRegistrar : CompilerPluginRegistrar() {
 
         IrGenerationExtension.registerExtension(KudosIrGenerationExtension())
         SyntheticResolveExtension.registerExtension(KudosSyntheticResolveExtension())
+        SyntheticResolveExtension.registerExtension(KudosJsonAdapterSyntheticResolveExtension())
         StorageComponentContainerContributor.registerExtension(KudosComponentContainerContributor(noArgAnnotations))
         FirExtensionRegistrarAdapter.registerExtension(KudosFirExtensionRegistrar(noArgAnnotations))
     }

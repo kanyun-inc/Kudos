@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    java
-    kotlin("jvm") version "1.8.20"
-    id("com.kanyun.kudos")
-}
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-}
+package com.kanyun.kudos.adapter
 
-kudos {
-    gson = true
-    jackson = true
-}
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 
-dependencies {
-    implementation("com.google.code.gson:gson:2.10")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-    implementation("com.kanyun.kudos:kudos-json-reader:0.0.0-SNAPSHOT")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("junit:junit:4.13.1")
+class ParameterizedTypeImpl(private val type: Type, private val typeArguments: Array<Type>) : ParameterizedType {
+    override fun getActualTypeArguments(): Array<Type> {
+        return typeArguments
+    }
+
+    override fun getRawType(): Type {
+        return type
+    }
+
+    override fun getOwnerType(): Type? {
+        return null
+    }
 }

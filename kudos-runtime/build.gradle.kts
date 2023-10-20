@@ -19,4 +19,5 @@ plugins {
 }
 
 dependencies {
+    compileOnly(project(":kudos-json-reader"))
 }

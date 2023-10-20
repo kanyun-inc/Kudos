@@ -26,6 +26,8 @@ const val KUDOS_VALIDATOR = "com.kanyun.kudos.validator.KudosValidator"
 const val VALIDATE_FIELD = "com.kanyun.kudos.validator.validateField"
 const val VALIDATE_COLLECTION = "com.kanyun.kudos.validator.validateCollection"
 const val VALIDATE_ARRAY = "com.kanyun.kudos.validator.validateArray"
+const val KUDOS_JSON_ADAPTER = "com.kanyun.kudos.adapter.KudosJsonAdapter"
+const val KUDOS_FROM_JSON_FUNCTION_NAME = "fromJson"
 
 const val TRANSIENT = "kotlin.jvm.Transient"
 

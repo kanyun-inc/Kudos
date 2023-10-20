@@ -13,27 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    java
-    kotlin("jvm") version "1.8.20"
-    id("com.kanyun.kudos")
-}
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-}
+package android.util;
 
-kudos {
-    gson = true
-    jackson = true
-}
+import java.io.IOException;
 
-dependencies {
-    implementation("com.google.code.gson:gson:2.10")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-    implementation("com.kanyun.kudos:kudos-json-reader:0.0.0-SNAPSHOT")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("junit:junit:4.13.1")
+/**
+ * Thrown when a reader encounters malformed JSON. Some syntax errors can be
+ * ignored by calling {@link JsonReader#setLenient(boolean)}.
+ */
+public final class MalformedJsonException extends IOException {
+    private static final long serialVersionUID = 1L;
+
+    public MalformedJsonException(String message) {
+        super(message);
+    }
 }

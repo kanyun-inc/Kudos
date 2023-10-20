@@ -88,6 +88,7 @@ class KudosIrClassTransformer(
         }
         generateNoArgConstructor()
         generateValidator()
+        generateFromJson()
     }
 
     private fun generateJsonAdapter() {
@@ -356,5 +357,15 @@ class KudosIrClassTransformer(
         return valueParameters.all {
             it.defaultValue != null
         } && (valueParameters.isEmpty() || isPrimary || hasAnnotation(JvmNames.JVM_OVERLOADS_FQ_NAME))
+    }
+
+    private fun generateFromJson() {
+        irClass.functions.singleOrNull {
+            it.name.identifier == "fromJson"
+        }?.takeIf {
+            it.body == null
+        }?.let { function ->
+            KudosFromJsonFunctionBuilder(irClass, function, context).generateBody()
+        }
     }
 }

@@ -25,26 +25,32 @@ import org.junit.Test
 class KudosTests : TestBase() {
 
     @Test
-    fun `classDeclarationCheck`() = testBase()
+    fun `common_classDeclarationCheck`() = testBase()
 
     @Test
-    fun `constructor`() = testBase()
+    fun `common_constructor`() = testBase()
 
     @Test
-    fun `defaultValue`() = testBase()
+    fun `common_defaultValue`() = testBase()
+
+    @Test
+    fun `common_initBlock`() = testBase()
+
+    @Test
+    fun `common_propertyTypeCheck`() = testBase()
 
     @Test
     fun `gson_jsonAdapterCheck`() = testBase()
 
     @Test
-    fun `initBlock`() = testBase()
+    fun `gson_notNull`() = testBase()
 
     @Test
-    fun `notNull`() = testBase()
+    fun `gson_validator`() = testBase()
 
     @Test
-    fun `propertyTypeCheck`() = testBase()
+    fun `jsonReader_deserialize`() = testBase()
 
     @Test
-    fun `validator`() = testBase()
+    fun `jsonReader_simple`() = testBase()
 }
