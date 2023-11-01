@@ -29,13 +29,16 @@ import org.jetbrains.kotlin.fir.extensions.FirSupertypeGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.predicate.DeclarationPredicate
 import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.resolve.toSymbol
+import org.jetbrains.kotlin.fir.scopes.impl.toConeType
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
+import org.jetbrains.kotlin.fir.symbols.impl.ConeClassLikeLookupTagImpl
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.FirResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.FirUserTypeRef
 import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.constructClassLikeType
+import org.jetbrains.kotlin.fir.types.impl.ConeClassLikeTypeImpl
 import org.jetbrains.kotlin.fir.types.toSymbol
 import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.ClassId
@@ -56,25 +59,51 @@ class KudosFirSupertypeGenerationExtension(
         register(hasKudos)
     }
 
-    context(TypeResolveServiceContainer) override fun computeAdditionalSupertypes(
+    context(TypeResolveServiceContainer)
+    override fun computeAdditionalSupertypes(
         classLikeDeclaration: FirClassLikeDeclaration,
         resolvedSupertypes: List<FirResolvedTypeRef>,
     ): List<FirResolvedTypeRef> {
         val kudosValidatorClassId = classId("com.kanyun.kudos.validator", "KudosValidator")
+        val kudosJsonAdapterClassId = classId("com.kanyun.kudos.adapter", "KudosJsonAdapter")
+        var hasValidator = false
+        var hasJsonAdapter = false
         for (superTypeRef in resolvedSupertypes) {
             val superType = superTypeRef.type
             val superTypeClassIds = superType.allSuperTypeClassIds()
-            if (kudosValidatorClassId in superTypeClassIds) return emptyList()
+            if (kudosValidatorClassId in superTypeClassIds) {
+                hasValidator = true
+            }
+            if (kudosJsonAdapterClassId in superTypeClassIds) {
+                hasJsonAdapter = true
+            }
         }
 
-        return listOf(
-            buildResolvedTypeRef {
+        val firTypeRefList = mutableListOf<FirResolvedTypeRef>()
+        if (!hasValidator) {
+            firTypeRefList += buildResolvedTypeRef {
                 type = kudosValidatorClassId.constructClassLikeType(
                     emptyArray(),
                     isNullable = false,
                 )
-            },
-        )
+            }
+        }
+        if (!hasJsonAdapter) {
+            val genericType = ConeClassLikeTypeImpl(
+                ConeClassLikeLookupTagImpl(classLikeDeclaration.classId),
+                classLikeDeclaration.typeParameters.map {
+                    it.toConeType()
+                }.toTypedArray(),
+                false,
+            )
+            firTypeRefList += buildResolvedTypeRef {
+                type = kudosJsonAdapterClassId.constructClassLikeType(
+                    arrayOf(genericType),
+                    isNullable = false,
+                )
+            }
+        }
+        return firTypeRefList
     }
 
     override fun needTransformSupertypes(declaration: FirClassLikeDeclaration): Boolean {
