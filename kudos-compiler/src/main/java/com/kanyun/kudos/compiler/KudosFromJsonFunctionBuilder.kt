@@ -16,6 +16,7 @@
 
 package com.kanyun.kudos.compiler
 
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_JSON_ADAPTER_CLASS_ID
 import com.kanyun.kudos.compiler.utils.irThis
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.kClassReference
@@ -171,12 +172,12 @@ internal class KudosFromJsonFunctionBuilder(
             field.type.isSubtypeOfClass(context.irBuiltIns.listClass) ||
             field.type.isSubtypeOfClass(context.irBuiltIns.arrayClass) ||
             field.type.isSubtypeOfClass(
-                pluginContext.referenceClass(ClassId(FqName("com.kanyun.kudos.adapter"), Name.identifier("KudosJsonAdapter")))!!,
+                pluginContext.referenceClass(KUDOS_JSON_ADAPTER_CLASS_ID)!!,
             )
         ) {
             irCall(
                 pluginContext.referenceFunctions(
-                    CallableId(FqName("com.kanyun.kudos.adapter"), Name.identifier("parseKudosObject")),
+                    CallableId(FqName("com.kanyun.kudos.json.reader.adapter"), Name.identifier("parseKudosObject")),
                 ).first(),
             ).apply {
                 putValueArgument(0, irGet(jsonReader))
@@ -215,7 +216,7 @@ internal class KudosFromJsonFunctionBuilder(
         return irCall(
             pluginContext.referenceClass(
                 ClassId(
-                    FqName("com.kanyun.kudos.adapter"),
+                    FqName("com.kanyun.kudos.json.reader.adapter"),
                     Name.identifier("ParameterizedTypeImpl"),
                 ),
             )!!.constructors.single(),

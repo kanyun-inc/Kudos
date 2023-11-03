@@ -19,7 +19,4 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":android-json-reader"))
-    api(project(":kudos-annotations"))
-    api(project(":kudos-runtime"))
 }

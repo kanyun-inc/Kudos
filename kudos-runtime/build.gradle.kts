@@ -17,7 +17,6 @@ plugins {
     java
     kotlin("jvm")
 }
-
 dependencies {
-    compileOnly(project(":kudos-json-reader"))
 }
+

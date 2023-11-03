@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.kanyun.kudos
+package com.kanyun.kudos.json.reader
 
 import android.util.JsonReader
-import com.kanyun.kudos.adapter.KudosJsonAdapter
+import com.kanyun.kudos.json.reader.adapter.KudosJsonAdapter
 
-object Kudos {
+object KudosJsonReader {
     inline fun <reified T> fromJson(json: String): T {
         return fromJson(json, T::class.java)
     }

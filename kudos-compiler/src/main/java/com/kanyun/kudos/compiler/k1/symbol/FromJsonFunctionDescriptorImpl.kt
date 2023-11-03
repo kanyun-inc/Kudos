@@ -16,7 +16,7 @@
 
 package com.kanyun.kudos.compiler.k1.symbol
 
-import com.kanyun.kudos.compiler.KUDOS_FROM_JSON_FUNCTION_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_FROM_JSON_IDENTIFIER
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl
-import org.jetbrains.kotlin.name.Name
 
 class FromJsonFunctionDescriptorImpl(
     private val classDescriptor: ClassDescriptor,
@@ -32,7 +31,7 @@ class FromJsonFunctionDescriptorImpl(
     classDescriptor,
     null,
     Annotations.EMPTY,
-    Name.identifier(KUDOS_FROM_JSON_FUNCTION_NAME),
+    KUDOS_FROM_JSON_IDENTIFIER,
     CallableMemberDescriptor.Kind.SYNTHESIZED,
     classDescriptor.source,
 ) {

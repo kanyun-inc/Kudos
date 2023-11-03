@@ -109,11 +109,11 @@ open class TestBase {
     private fun jsonReaderDeserialize(): String {
         return """
             // FILE: JsonReader.kt
-            import com.kanyun.kudos.Kudos
+            import com.kanyun.kudos.json.reader.KudosJsonReader
             
             inline fun <reified T: Any> deserialize(string: String): T? {
                 return try {
-                    val t: T = Kudos.fromJson(string)
+                    val t: T = KudosJsonReader.fromJson(string)
                     println(t)
                     t
                 } catch (e: Exception) {

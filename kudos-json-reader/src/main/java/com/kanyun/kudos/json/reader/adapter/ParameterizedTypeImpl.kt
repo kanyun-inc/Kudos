@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.kanyun.kudos.adapter
+package com.kanyun.kudos.json.reader.adapter
 
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type

@@ -16,10 +16,14 @@
 
 package com.kanyun.kudos.compiler.k1
 
-import com.kanyun.kudos.compiler.KUDOS
-import com.kanyun.kudos.compiler.KUDOS_FROM_JSON_FUNCTION_NAME
-import com.kanyun.kudos.compiler.KUDOS_JSON_ADAPTER
-import com.kanyun.kudos.compiler.KUDOS_VALIDATOR
+import com.kanyun.kudos.compiler.KudosNames.JSON_READER_CLASS_ID
+import com.kanyun.kudos.compiler.KudosNames.JSON_READER_IDENTIFIER
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_FROM_JSON_IDENTIFIER
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_JSON_ADAPTER
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_JSON_ADAPTER_CLASS_ID
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR_CLASS_ID
 import com.kanyun.kudos.compiler.k1.symbol.FromJsonFunctionDescriptorImpl
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -29,8 +33,6 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.findClassAcrossModuleDependencies
 import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
 import org.jetbrains.kotlin.js.descriptorUtils.getKotlinTypeFqName
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
@@ -49,7 +51,7 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
         supertypes: MutableList<KotlinType>,
     ) {
         if (thisDescriptor.kind != ClassKind.CLASS) return
-        if (thisDescriptor.annotations.hasAnnotation(FqName(KUDOS))) {
+        if (thisDescriptor.annotations.hasAnnotation(KUDOS_NAME)) {
             val superTypeNames = supertypes.asSequence().flatMap {
                 listOf(it) + it.supertypes()
             }.map {
@@ -57,13 +59,7 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
             }.toSet()
 
             if (KUDOS_VALIDATOR !in superTypeNames) {
-                val kudosValidator = thisDescriptor.module.findClassAcrossModuleDependencies(
-                    ClassId(
-                        FqName("com.kanyun.kudos.validator"),
-                        Name.identifier("KudosValidator"),
-                    ),
-                )!!
-
+                val kudosValidator = thisDescriptor.module.findClassAcrossModuleDependencies(KUDOS_VALIDATOR_CLASS_ID)!!
                 supertypes.add(
                     KotlinTypeFactory.simpleNotNullType(
                         TypeAttributes.Empty,
@@ -73,13 +69,7 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
                 )
             }
             if (KUDOS_JSON_ADAPTER !in superTypeNames) {
-                val kudosValidator = thisDescriptor.module.findClassAcrossModuleDependencies(
-                    ClassId(
-                        FqName("com.kanyun.kudos.adapter"),
-                        Name.identifier("KudosJsonAdapter"),
-                    ),
-                )!!
-
+                val kudosValidator = thisDescriptor.module.findClassAcrossModuleDependencies(KUDOS_JSON_ADAPTER_CLASS_ID)!!
                 supertypes.add(
                     KotlinTypeFactory.simpleNotNullType(
                         TypeAttributes.Empty,
@@ -92,8 +82,8 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
     }
 
     override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> {
-        if (thisDescriptor.annotations.hasAnnotation(FqName(KUDOS))) {
-            return listOf(Name.identifier(KUDOS_FROM_JSON_FUNCTION_NAME))
+        if (thisDescriptor.annotations.hasAnnotation(KUDOS_NAME)) {
+            return listOf(KUDOS_FROM_JSON_IDENTIFIER)
         }
         return super.getSyntheticFunctionNames(thisDescriptor)
     }
@@ -105,10 +95,9 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
         fromSupertypes: List<SimpleFunctionDescriptor>,
         result: MutableCollection<SimpleFunctionDescriptor>,
     ) {
-        if (name.identifier == KUDOS_FROM_JSON_FUNCTION_NAME) {
-            if (thisDescriptor.annotations.hasAnnotation(FqName(KUDOS))) {
-                val jsonReaderClassId = ClassId.fromString("android/util/JsonReader")
-                val jsonReaderType: SimpleType = thisDescriptor.module.findClassAcrossModuleDependencies(jsonReaderClassId)?.defaultType ?: return
+        if (name.identifier == KUDOS_FROM_JSON_IDENTIFIER.identifier) {
+            if (thisDescriptor.annotations.hasAnnotation(KUDOS_NAME)) {
+                val jsonReaderType: SimpleType = thisDescriptor.module.findClassAcrossModuleDependencies(JSON_READER_CLASS_ID)?.defaultType ?: return
 
                 result += FromJsonFunctionDescriptorImpl(thisDescriptor).apply {
                     val valueParameterDescriptor = ValueParameterDescriptorImpl(
@@ -116,7 +105,7 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
                         original = null,
                         index = 0,
                         annotations = Annotations.EMPTY,
-                        name = Name.identifier("jsonReader"),
+                        name = JSON_READER_IDENTIFIER,
                         outType = jsonReaderType,
                         declaresDefaultValue = false,
                         isCrossinline = false,

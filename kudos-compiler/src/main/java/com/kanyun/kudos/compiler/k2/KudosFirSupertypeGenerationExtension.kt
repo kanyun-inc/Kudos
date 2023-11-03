@@ -16,7 +16,9 @@
 
 package com.kanyun.kudos.compiler.k2
 
-import com.kanyun.kudos.compiler.KUDOS
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_JSON_ADAPTER_CLASS_ID
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR_CLASS_ID
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
@@ -40,9 +42,7 @@ import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.constructClassLikeType
 import org.jetbrains.kotlin.fir.types.impl.ConeClassLikeTypeImpl
 import org.jetbrains.kotlin.fir.types.toSymbol
-import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 
 /**
  * Created by benny at 2023/5/29 14:47.
@@ -52,7 +52,7 @@ class KudosFirSupertypeGenerationExtension(
 ) : FirSupertypeGenerationExtension(session) {
 
     private val hasKudos = DeclarationPredicate.create {
-        annotated(FqName(KUDOS))
+        annotated(KUDOS_NAME)
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
@@ -64,17 +64,15 @@ class KudosFirSupertypeGenerationExtension(
         classLikeDeclaration: FirClassLikeDeclaration,
         resolvedSupertypes: List<FirResolvedTypeRef>,
     ): List<FirResolvedTypeRef> {
-        val kudosValidatorClassId = classId("com.kanyun.kudos.validator", "KudosValidator")
-        val kudosJsonAdapterClassId = classId("com.kanyun.kudos.adapter", "KudosJsonAdapter")
         var hasValidator = false
         var hasJsonAdapter = false
         for (superTypeRef in resolvedSupertypes) {
             val superType = superTypeRef.type
             val superTypeClassIds = superType.allSuperTypeClassIds()
-            if (kudosValidatorClassId in superTypeClassIds) {
+            if (KUDOS_VALIDATOR_CLASS_ID in superTypeClassIds) {
                 hasValidator = true
             }
-            if (kudosJsonAdapterClassId in superTypeClassIds) {
+            if (KUDOS_JSON_ADAPTER_CLASS_ID in superTypeClassIds) {
                 hasJsonAdapter = true
             }
         }
@@ -82,7 +80,7 @@ class KudosFirSupertypeGenerationExtension(
         val firTypeRefList = mutableListOf<FirResolvedTypeRef>()
         if (!hasValidator) {
             firTypeRefList += buildResolvedTypeRef {
-                type = kudosValidatorClassId.constructClassLikeType(
+                type = KUDOS_VALIDATOR_CLASS_ID.constructClassLikeType(
                     emptyArray(),
                     isNullable = false,
                 )
@@ -97,7 +95,7 @@ class KudosFirSupertypeGenerationExtension(
                 false,
             )
             firTypeRefList += buildResolvedTypeRef {
-                type = kudosJsonAdapterClassId.constructClassLikeType(
+                type = KUDOS_JSON_ADAPTER_CLASS_ID.constructClassLikeType(
                     arrayOf(genericType),
                     isNullable = false,
                 )

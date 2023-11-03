@@ -16,8 +16,10 @@
 
 package com.kanyun.kudos.compiler.k2
 
-import com.kanyun.kudos.compiler.KUDOS
-import com.kanyun.kudos.compiler.KUDOS_FROM_JSON_FUNCTION_NAME
+import com.kanyun.kudos.compiler.KudosNames.JSON_READER_CLASS_ID
+import com.kanyun.kudos.compiler.KudosNames.JSON_READER_IDENTIFIER
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_FROM_JSON_IDENTIFIER
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
 import org.jetbrains.kotlin.GeneratedDeclarationKey
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
@@ -42,10 +44,7 @@ import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.classId
 import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.fir.types.impl.ConeClassLikeTypeImpl
-import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
@@ -54,9 +53,9 @@ class KudosFirDeclarationGenerator(session: FirSession) :
 
     companion object {
         private val PREDICATE = LookupPredicate.create {
-            annotated(FqName(KUDOS))
+            annotated(KUDOS_NAME)
         }
-        private val kudosMethodsNames = setOf(Name.identifier(KUDOS_FROM_JSON_FUNCTION_NAME))
+        private val kudosMethodsNames = setOf(KUDOS_FROM_JSON_IDENTIFIER)
     }
 
     private val matchedClasses by lazy {
@@ -85,7 +84,7 @@ class KudosFirDeclarationGenerator(session: FirSession) :
     ): List<FirNamedFunctionSymbol> {
         val owner = context?.owner ?: return emptyList()
         require(owner is FirRegularClassSymbol)
-        if (callableId.callableName == Name.identifier(KUDOS_FROM_JSON_FUNCTION_NAME)) {
+        if (callableId.callableName == KUDOS_FROM_JSON_IDENTIFIER) {
             val declaredFunctions =
                 owner.declarationSymbols.filterIsInstance<FirNamedFunctionSymbol>()
             val function = runIf(declaredFunctions.none { it.isFromJson() }) {
@@ -103,8 +102,8 @@ class KudosFirDeclarationGenerator(session: FirSession) :
                     returnType,
                 ) {
                     valueParameter(
-                        Name.identifier("jsonReader"),
-                        ClassId.fromString("android/util/JsonReader").createConeType(session),
+                        JSON_READER_IDENTIFIER,
+                        JSON_READER_CLASS_ID.createConeType(session),
                     )
                 }
             }
@@ -127,11 +126,11 @@ class KudosFirDeclarationGenerator(session: FirSession) :
     }
 
     private fun FirNamedFunctionSymbol.isFromJson(): Boolean {
-        if (name != Name.identifier(KUDOS_FROM_JSON_FUNCTION_NAME)) return false
+        if (name != KUDOS_FROM_JSON_IDENTIFIER) return false
         val parameterSymbols = valueParameterSymbols
         if (parameterSymbols.size != 1) return false
         val jsonReaderSymbol = parameterSymbols[0]
-        if (jsonReaderSymbol.resolvedReturnTypeRef.coneType.classId != ClassId.fromString("android/util/JsonReader")) return false
+        if (jsonReaderSymbol.resolvedReturnTypeRef.coneType.classId != JSON_READER_CLASS_ID) return false
         return true
     }
 }

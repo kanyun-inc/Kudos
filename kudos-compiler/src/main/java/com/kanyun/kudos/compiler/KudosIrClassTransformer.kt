@@ -16,6 +16,9 @@
 
 package com.kanyun.kudos.compiler
 
+import com.kanyun.kudos.compiler.KudosNames.ADAPTER_FACTORY_NAME
+import com.kanyun.kudos.compiler.KudosNames.JSON_ADAPTER_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR_NAME
 import com.kanyun.kudos.compiler.options.Options
 import com.kanyun.kudos.compiler.utils.addOverride
 import com.kanyun.kudos.compiler.utils.hasKudosAnnotation
@@ -92,16 +95,16 @@ class KudosIrClassTransformer(
     }
 
     private fun generateJsonAdapter() {
-        val jsonAdapter = context.referenceConstructors(ClassId.topLevel(FqName(JSON_ADAPTER))).firstOrNull()
+        val jsonAdapter = context.referenceConstructors(ClassId.topLevel(JSON_ADAPTER_NAME)).firstOrNull()
             ?: throw IllegalStateException(
-                "Constructors of class $JSON_ADAPTER not found while isGsonEnabled is set to true. " +
+                "Constructors of class ${JSON_ADAPTER_NAME.shortName()} not found while isGsonEnabled is set to true. " +
                     "Please check your dependencies to ensure the existing of the Gson library.",
             )
         irClass.annotations += IrConstructorCallImpl.fromSymbolOwner(
             jsonAdapter.owner.returnType,
             jsonAdapter.owner.symbol,
         ).apply {
-            val adapterFactory = context.referenceClass(ClassId.topLevel(FqName(ADAPTER_FACTORY)))!!
+            val adapterFactory = context.referenceClass(ClassId.topLevel(ADAPTER_FACTORY_NAME))!!
 
             putValueArgument(
                 0,
@@ -230,7 +233,6 @@ class KudosIrClassTransformer(
 
         if (nonDefaults.isEmpty() && collections.isEmpty() && arrays.isEmpty()) return
 
-        val kudosValidator = FqName(KUDOS_VALIDATOR)
         val statusType = context.irBuiltIns.mapClass.typeWith(
             context.irBuiltIns.stringType,
             context.irBuiltIns.booleanType,
@@ -248,7 +250,7 @@ class KudosIrClassTransformer(
             irClass.declarations.remove(validateFunction)
         }
 
-        irClass.addOverride(kudosValidator, "validate", context.irBuiltIns.unitType, Modality.OPEN).apply {
+        irClass.addOverride(KUDOS_VALIDATOR_NAME, "validate", context.irBuiltIns.unitType, Modality.OPEN).apply {
             dispatchReceiverParameter = irClass.thisReceiver!!.copyTo(this)
             val statusParameter = addValueParameter {
                 name = Name.identifier("status")
