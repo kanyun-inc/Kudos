@@ -3,7 +3,7 @@
 // FILE: Main.kt [MainKt#main]
 import com.kanyun.kudos.annotations.Kudos
 @Kudos
-class Desc(val descDetail: String)
+class Desc(val descDetail: String, val descId: Int)
 
 @Kudos
 class UserLazy(val id: Long, val name: String, val desc: Desc, val tags: List<List<String>>) {
@@ -21,7 +21,7 @@ class UserLazy(val id: Long, val name: String, val desc: Desc, val tags: List<Li
 }
 
 fun main() {
-    deserialize<UserLazy>("""{"id": 10, "name": "John Claud", "desc": {"descDetail": "desc detail"}, "tags": [["tag1", "tag2"],["abc","def"]] }""")
+    deserialize<UserLazy>("""{"id": 10, "name": "John Claud", "desc": {"descDetail": "desc detail", "descId": 123}, "tags": [["tag1", "tag2"],["abc","def"]] }""")
 }
 
 // EXPECT

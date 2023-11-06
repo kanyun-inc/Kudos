@@ -90,8 +90,8 @@ class Project : KudosValidator, KudosJsonAdapter<Project> {
             when {
                 EQEQ(arg0 = tmp0, arg1 = "projectName") -> <this>.#projectName = jsonReader.nextString()
                 EQEQ(arg0 = tmp0, arg1 = "projectId") -> <this>.#projectId = jsonReader.nextInt()
-                EQEQ(arg0 = tmp0, arg1 = "tags") -> <this>.#tags = parseKudosObject(jsonReader = jsonReader, type = ParameterizedTypeImpl(type = KClass::class.<get-java></* null */>(), typeArguments = arrayOf</* null */>(elements = [KClass::class.<get-java></* null */>()])))
-                EQEQ(arg0 = tmp0, arg1 = "desc") -> <this>.#desc = parseKudosObject(jsonReader = jsonReader, type = KClass::class.<get-java></* null */>())
+                EQEQ(arg0 = tmp0, arg1 = "tags") -> <this>.#tags = parseKudosObject(jsonReader = jsonReader, type = ParameterizedTypeImpl(type = KClass::class.<get-javaObjectType></* null */>(), typeArguments = arrayOf</* null */>(elements = [KClass::class.<get-javaObjectType></* null */>()])))
+                EQEQ(arg0 = tmp0, arg1 = "desc") -> <this>.#desc = parseKudosObject(jsonReader = jsonReader, type = KClass::class.<get-javaObjectType></* null */>())
                 else -> jsonReader.skipValue()
             }
         }

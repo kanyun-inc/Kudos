@@ -39,7 +39,6 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrBranch
-import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrSimpleType
@@ -147,7 +146,7 @@ internal class KudosFromJsonFunctionBuilder(
         ).first()
     }
 
-    private fun getNextValue(field: IrField): IrCall {
+    private fun getNextValue(field: IrField): IrExpression {
         return if (field.type.isSubtypeOfClass(context.irBuiltIns.stringClass)) {
             irCall(getJsonReaderNextSymbol("String")).apply {
                 dispatchReceiver = irGet(jsonReader)
@@ -164,6 +163,16 @@ internal class KudosFromJsonFunctionBuilder(
             irCall(getJsonReaderNextSymbol("Double")).apply {
                 dispatchReceiver = irGet(jsonReader)
             }
+        } else if (field.type.isSubtypeOfClass(context.irBuiltIns.floatClass)) {
+            irCall(
+                pluginContext.referenceFunctions(
+                    CallableId(FqName("kotlin.text"), Name.identifier("toFloat")),
+                ).first().owner,
+            ).apply {
+                extensionReceiver = irCall(getJsonReaderNextSymbol("String")).apply {
+                    dispatchReceiver = irGet(jsonReader)
+                }
+            }
         } else if (field.type.isSubtypeOfClass(context.irBuiltIns.booleanClass)) {
             irCall(getJsonReaderNextSymbol("Boolean")).apply {
                 dispatchReceiver = irGet(jsonReader)
@@ -171,6 +180,8 @@ internal class KudosFromJsonFunctionBuilder(
         } else if (
             field.type.isSubtypeOfClass(context.irBuiltIns.listClass) ||
             field.type.isSubtypeOfClass(context.irBuiltIns.arrayClass) ||
+            field.type.isSubtypeOfClass(context.irBuiltIns.setClass) ||
+            field.type.isSubtypeOfClass(context.irBuiltIns.mapClass) ||
             field.type.isSubtypeOfClass(
                 pluginContext.referenceClass(KUDOS_JSON_ADAPTER_CLASS_ID)!!,
             )
@@ -196,7 +207,7 @@ internal class KudosFromJsonFunctionBuilder(
         if (typeArguments.isEmpty()) {
             return irCall(
                 pluginContext.referenceProperties(
-                    CallableId(FqName("kotlin.jvm"), Name.identifier("java")),
+                    CallableId(FqName("kotlin.jvm"), Name.identifier("javaObjectType")),
                 ).first().owner.getter!!,
             ).apply {
                 extensionReceiver = kClassReference(type)
@@ -225,7 +236,7 @@ internal class KudosFromJsonFunctionBuilder(
                 0,
                 irCall(
                     pluginContext.referenceProperties(
-                        CallableId(FqName("kotlin.jvm"), Name.identifier("java")),
+                        CallableId(FqName("kotlin.jvm"), Name.identifier("javaObjectType")),
                     ).first().owner.getter!!,
                 ).apply {
                     extensionReceiver = kClassReference(type)

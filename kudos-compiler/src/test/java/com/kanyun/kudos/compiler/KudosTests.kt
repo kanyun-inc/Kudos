@@ -52,5 +52,17 @@ class KudosTests : TestBase() {
     fun `jsonReader_deserialize`() = testBase()
 
     @Test
+    fun `jsonReader_deserializeArrayType`() = testBase()
+
+    @Test
+    fun `jsonReader_deserializeFloatType`() = testBase()
+
+    @Test
+    fun `jsonReader_deserializeMapType`() = testBase()
+
+    @Test
+    fun `jsonReader_deserializeSetType`() = testBase()
+
+    @Test
     fun `jsonReader_simple`() = testBase()
 }
