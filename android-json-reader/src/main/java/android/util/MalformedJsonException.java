@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package com.kanyun.kudos.compiler.k2
+package android.util;
 
-import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
-import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
+import java.io.IOException;
 
 /**
- * Created by Benny Huo on 2023/8/21
+ * Thrown when a reader encounters malformed JSON. Some syntax errors can be
+ * ignored by calling {@link JsonReader#setLenient(boolean)}.
  */
-class KudosFirExtensionRegistrar(
-    private val noArgAnnotations: List<String>,
-) : FirExtensionRegistrar() {
-    override fun ExtensionRegistrarContext.configurePlugin() {
-        +FirAdditionalCheckersExtension.Factory { session ->
-            KudosFirCheckers(session, noArgAnnotations)
-        }
-        +::KudosFirSupertypeGenerationExtension
-        +::KudosFirDeclarationGenerator
+public final class MalformedJsonException extends IOException {
+    private static final long serialVersionUID = 1L;
+
+    public MalformedJsonException(String message) {
+        super(message);
     }
 }

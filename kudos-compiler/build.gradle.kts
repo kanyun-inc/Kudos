@@ -37,6 +37,8 @@ dependencies {
     testImplementation(kotlin("test-junit"))
     testImplementation(project(":kudos-gson"))
     testImplementation(project(":kudos-jackson"))
+    testImplementation(project(":kudos-android-json-reader"))
+    testImplementation(project(":android-json-reader"))
     testImplementation("org.jetbrains.kotlin:kotlin-noarg:1.8.20")
     testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable")
     testImplementation("com.bennyhuo.kotlin:kotlin-compile-testing-extensions:1.8.20-1.2.2")

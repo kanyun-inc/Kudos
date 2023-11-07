@@ -16,7 +16,9 @@
 
 package com.kanyun.kudos.compiler.k2
 
-import com.kanyun.kudos.compiler.KUDOS
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_JSON_ADAPTER_CLASS_ID
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR_CLASS_ID
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
@@ -29,17 +31,18 @@ import org.jetbrains.kotlin.fir.extensions.FirSupertypeGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.predicate.DeclarationPredicate
 import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.resolve.toSymbol
+import org.jetbrains.kotlin.fir.scopes.impl.toConeType
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
+import org.jetbrains.kotlin.fir.symbols.impl.ConeClassLikeLookupTagImpl
 import org.jetbrains.kotlin.fir.types.ConeClassLikeType
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.FirResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.FirUserTypeRef
 import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.constructClassLikeType
+import org.jetbrains.kotlin.fir.types.impl.ConeClassLikeTypeImpl
 import org.jetbrains.kotlin.fir.types.toSymbol
-import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 
 /**
  * Created by benny at 2023/5/29 14:47.
@@ -49,32 +52,56 @@ class KudosFirSupertypeGenerationExtension(
 ) : FirSupertypeGenerationExtension(session) {
 
     private val hasKudos = DeclarationPredicate.create {
-        annotated(FqName(KUDOS))
+        annotated(KUDOS_NAME)
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
         register(hasKudos)
     }
 
-    context(TypeResolveServiceContainer) override fun computeAdditionalSupertypes(
+    context(TypeResolveServiceContainer)
+    override fun computeAdditionalSupertypes(
         classLikeDeclaration: FirClassLikeDeclaration,
         resolvedSupertypes: List<FirResolvedTypeRef>,
     ): List<FirResolvedTypeRef> {
-        val kudosValidatorClassId = classId("com.kanyun.kudos.validator", "KudosValidator")
+        var hasValidator = false
+        var hasJsonAdapter = false
         for (superTypeRef in resolvedSupertypes) {
             val superType = superTypeRef.type
             val superTypeClassIds = superType.allSuperTypeClassIds()
-            if (kudosValidatorClassId in superTypeClassIds) return emptyList()
+            if (KUDOS_VALIDATOR_CLASS_ID in superTypeClassIds) {
+                hasValidator = true
+            }
+            if (KUDOS_JSON_ADAPTER_CLASS_ID in superTypeClassIds) {
+                hasJsonAdapter = true
+            }
         }
 
-        return listOf(
-            buildResolvedTypeRef {
-                type = kudosValidatorClassId.constructClassLikeType(
+        val firTypeRefList = mutableListOf<FirResolvedTypeRef>()
+        if (!hasValidator) {
+            firTypeRefList += buildResolvedTypeRef {
+                type = KUDOS_VALIDATOR_CLASS_ID.constructClassLikeType(
                     emptyArray(),
                     isNullable = false,
                 )
-            },
-        )
+            }
+        }
+        if (!hasJsonAdapter) {
+            val genericType = ConeClassLikeTypeImpl(
+                ConeClassLikeLookupTagImpl(classLikeDeclaration.classId),
+                classLikeDeclaration.typeParameters.map {
+                    it.toConeType()
+                }.toTypedArray(),
+                false,
+            )
+            firTypeRefList += buildResolvedTypeRef {
+                type = KUDOS_JSON_ADAPTER_CLASS_ID.constructClassLikeType(
+                    arrayOf(genericType),
+                    isNullable = false,
+                )
+            }
+        }
+        return firTypeRefList
     }
 
     override fun needTransformSupertypes(declaration: FirClassLikeDeclaration): Boolean {

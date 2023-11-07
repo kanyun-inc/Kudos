@@ -17,14 +17,13 @@
 package com.kanyun.kudos.compiler.base
 
 import com.bennyhuo.kotlin.compiletesting.extensions.module.COMPILER_OUTPUT_LEVEL_WARN
-import com.bennyhuo.kotlin.compiletesting.extensions.module.IR_OUTPUT_TYPE_RAW
+import com.bennyhuo.kotlin.compiletesting.extensions.module.IR_OUTPUT_TYPE_KOTLIN_LIKE
 import com.bennyhuo.kotlin.compiletesting.extensions.module.KotlinModule
 import com.bennyhuo.kotlin.compiletesting.extensions.module.checkResult
 import com.bennyhuo.kotlin.compiletesting.extensions.source.TextBasedModuleInfoLoader
 import com.kanyun.kudos.compiler.KudosCompilerPluginRegistrar
 import com.kanyun.kudos.compiler.options.Options
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.io.File
 
 /**
@@ -33,7 +32,7 @@ import java.io.File
 @OptIn(ExperimentalCompilerApi::class)
 open class TestBase {
 
-    private val validVariants = arrayOf("gson", "jackson")
+    private val validVariants = arrayOf("gson", "jackson", "jsonReader")
 
     private val useK2 = System.getProperty("KOTLIN_COMPILER") == "K2"
     private val variant = System.getProperty("VARIANT") ?: validVariants.first()
@@ -43,7 +42,9 @@ open class TestBase {
     }
 
     private fun firstExistFile(vararg paths: String): String {
-        return paths.flatMap { path ->
+        return paths.map {
+            it.replace("_", "/")
+        }.flatMap { path ->
             // ignore cases of the first letter
             listOf(path.replaceFirstChar { it.uppercaseChar() }, path.replaceFirstChar { it.lowercaseChar() })
         }.firstOrNull {
@@ -105,6 +106,24 @@ open class TestBase {
         """.trimIndent()
     }
 
+    private fun jsonReaderDeserialize(): String {
+        return """
+            // FILE: JsonReader.kt
+            import com.kanyun.kudos.json.reader.KudosAndroidJsonReader
+            
+            inline fun <reified T: Any> deserialize(string: String): T? {
+                return try {
+                    val t: T = KudosAndroidJsonReader.fromJson(string)
+                    println(t)
+                    t
+                } catch (e: Exception) {
+                    println(e)
+                    null
+                }
+            }
+        """.trimIndent()
+    }
+
     private fun doTest(fileName: String, deserializer: () -> String) {
         val filePath = firstExistFile("testData/$fileName", "testData/$fileName.kt", "testData/$fileName.txt")
         val deserializerSource = deserializer()
@@ -127,7 +146,7 @@ open class TestBase {
             executeEntries = true,
             checkCompilerOutput = true,
             compilerOutputLevel = COMPILER_OUTPUT_LEVEL_WARN,
-            irOutputType = IR_OUTPUT_TYPE_RAW,
+            irOutputType = IR_OUTPUT_TYPE_KOTLIN_LIKE,
         )
     }
 
@@ -138,12 +157,15 @@ open class TestBase {
             return
         }
 
-        when (variant.toLowerCaseAsciiOnly()) {
+        when (variant) {
             "gson" -> {
                 doTest(fileName, ::gsonDeserialize)
             }
             "jackson" -> {
                 doTest(fileName, ::jacksonDeserialize)
+            }
+            "jsonReader" -> {
+                doTest(fileName, ::jsonReaderDeserialize)
             }
             else -> {
                 throw UnsupportedOperationException("Unknown variant '$variant'. Supported values: 'gson', 'jackson'.")

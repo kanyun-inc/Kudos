@@ -15,27 +15,11 @@
  */
 plugins {
     java
-    kotlin("jvm") version "1.8.20"
-    id("com.kanyun.kudos")
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-}
-
-val KUDOS_VERSION: String by extra
-
-kudos {
-    gson = true
-    jackson = true
+    kotlin("jvm")
 }
 
 dependencies {
-    implementation("com.google.code.gson:gson:2.10")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-    implementation("com.kanyun.kudos:android-json-reader:$KUDOS_VERSION")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("junit:junit:4.13.1")
+    compileOnly(project(":android-json-reader"))
+    api(project(":kudos-annotations"))
+    api(project(":kudos-runtime"))
 }

@@ -16,11 +16,11 @@
 
 package com.kanyun.kudos.compiler.k1
 
-import com.kanyun.kudos.compiler.CONTAINER_FQ_NAMES
-import com.kanyun.kudos.compiler.JSON_ADAPTER
-import com.kanyun.kudos.compiler.KUDOS
-import com.kanyun.kudos.compiler.KUDOS_IGNORE
-import com.kanyun.kudos.compiler.TRANSIENT
+import com.kanyun.kudos.compiler.KudosNames.CONTAINER_FQ_NAMES
+import com.kanyun.kudos.compiler.KudosNames.JSON_ADAPTER_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_IGNORE
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
+import com.kanyun.kudos.compiler.KudosNames.TRANSIENT
 import com.kanyun.kudos.compiler.k1.diagnostic.KudosErrors
 import com.kanyun.kudos.compiler.k1.utils.initializedWithThisReference
 import com.kanyun.kudos.compiler.k1.utils.isLazyCall
@@ -53,7 +53,7 @@ class KudosDeclarationChecker(
         if (
             declaration is KtClass &&
             descriptor is ClassDescriptor &&
-            descriptor.annotations.hasAnnotation(FqName(KUDOS))
+            descriptor.annotations.hasAnnotation(KUDOS_NAME)
         ) {
             if (declaration.typeParameters.isNotEmpty()) {
                 context.trace.report(KudosErrors.GENERIC_TYPE.on(declaration))
@@ -94,7 +94,7 @@ class KudosDeclarationChecker(
         context: DeclarationCheckerContext,
         declaration: KtDeclaration,
     ) {
-        if (descriptor.annotations.hasAnnotation(FqName(JSON_ADAPTER))) {
+        if (descriptor.annotations.hasAnnotation(JSON_ADAPTER_NAME)) {
             context.trace.report(KudosErrors.CONFLICTS_WITH_JSON_ADAPTER.on(declaration))
         }
     }
@@ -177,7 +177,7 @@ class KudosDeclarationChecker(
             return emptyList()
         }
 
-        if (type.hasAnnotation(KUDOS)) {
+        if (type.hasAnnotation(KUDOS_NAME)) {
             return emptyList()
         }
 
@@ -192,7 +192,7 @@ class KudosDeclarationChecker(
         (constructor.declarationDescriptor as? TypeParameterDescriptor)?.representativeUpperBound?.getErasedUpperBound()
             ?: this
 
-    private fun KotlinType.hasAnnotation(fqName: String): Boolean {
-        return constructor.declarationDescriptor?.annotations?.hasAnnotation(FqName(fqName)) ?: false
+    private fun KotlinType.hasAnnotation(fqName: FqName): Boolean {
+        return constructor.declarationDescriptor?.annotations?.hasAnnotation(fqName) ?: false
     }
 }

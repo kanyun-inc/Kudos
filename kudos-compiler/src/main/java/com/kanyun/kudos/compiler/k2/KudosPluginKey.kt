@@ -16,20 +16,10 @@
 
 package com.kanyun.kudos.compiler.k2
 
-import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
-import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
+import org.jetbrains.kotlin.GeneratedDeclarationKey
 
-/**
- * Created by Benny Huo on 2023/8/21
- */
-class KudosFirExtensionRegistrar(
-    private val noArgAnnotations: List<String>,
-) : FirExtensionRegistrar() {
-    override fun ExtensionRegistrarContext.configurePlugin() {
-        +FirAdditionalCheckersExtension.Factory { session ->
-            KudosFirCheckers(session, noArgAnnotations)
-        }
-        +::KudosFirSupertypeGenerationExtension
-        +::KudosFirDeclarationGenerator
+object KudosPluginKey : GeneratedDeclarationKey() {
+    override fun toString(): String {
+        return "FirKudos"
     }
 }

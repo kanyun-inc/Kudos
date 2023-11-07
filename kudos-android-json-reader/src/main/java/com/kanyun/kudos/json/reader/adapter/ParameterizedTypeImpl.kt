@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    java
-    kotlin("jvm")
-}
-dependencies {
-}
 
+package com.kanyun.kudos.json.reader.adapter
+
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
+
+class ParameterizedTypeImpl(private val type: Type, private val typeArguments: Array<Type>) : ParameterizedType {
+    override fun getActualTypeArguments(): Array<Type> {
+        return typeArguments
+    }
+
+    override fun getRawType(): Type {
+        return type
+    }
+
+    override fun getOwnerType(): Type? {
+        return null
+    }
+}
