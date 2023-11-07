@@ -62,26 +62,27 @@ fun main() {
          */
         class KudosTests : TestBase() {
            
-            ${caseDir.listFiles().orEmpty()
-        .flatMap {
-            if (it.isDirectory) {
-                it.listFiles().orEmpty().toList()
-            } else {
-                listOf(it)
+            ${
+        caseDir.listFiles().orEmpty()
+            .flatMap {
+                if (it.isDirectory) {
+                    it.listFiles().orEmpty().toList()
+                } else {
+                    listOf(it)
+                }
             }
-        }
-        .map {
-            val parentDir = it.parentFile.name
-            if (parentDir == "testData") {
-                it.nameWithoutExtension
-            }else {
-                "${parentDir}_${it.nameWithoutExtension}"
+            .map {
+                val parentDir = it.parentFile.name
+                if (parentDir == "testData") {
+                    it.nameWithoutExtension
+                } else {
+                    "${parentDir}_${it.nameWithoutExtension}"
+                }
             }
-        }
-        .sortedBy { it }
-        .joinToString("\n") {
-            "@Test\nfun `${it.replaceFirstChar { it.lowercaseChar() }}`() = testBase()\n"
-        }
+            .sortedBy { it }
+            .joinToString("\n") {
+                "@Test\nfun `${it.replaceFirstChar { it.lowercaseChar() }}`() = testBase()\n"
+            }
     }
         }
     """.trimIndent()

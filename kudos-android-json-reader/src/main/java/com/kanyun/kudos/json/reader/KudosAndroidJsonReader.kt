@@ -19,7 +19,7 @@ package com.kanyun.kudos.json.reader
 import android.util.JsonReader
 import com.kanyun.kudos.json.reader.adapter.KudosJsonAdapter
 
-object KudosJsonReader {
+object KudosAndroidJsonReader {
     inline fun <reified T> fromJson(json: String): T {
         return fromJson(json, T::class.java)
     }

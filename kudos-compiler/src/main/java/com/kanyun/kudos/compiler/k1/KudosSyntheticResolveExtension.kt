@@ -69,11 +69,11 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
                 )
             }
             if (KUDOS_JSON_ADAPTER !in superTypeNames) {
-                val kudosValidator = thisDescriptor.module.findClassAcrossModuleDependencies(KUDOS_JSON_ADAPTER_CLASS_ID)!!
+                val kudosJsonAdapter = thisDescriptor.module.findClassAcrossModuleDependencies(KUDOS_JSON_ADAPTER_CLASS_ID)!!
                 supertypes.add(
                     KotlinTypeFactory.simpleNotNullType(
                         TypeAttributes.Empty,
-                        kudosValidator,
+                        kudosJsonAdapter,
                         listOf(TypeProjectionImpl(thisDescriptor.defaultType)),
                     ),
                 )

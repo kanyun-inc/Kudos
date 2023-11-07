@@ -47,7 +47,7 @@ open class KudosGradlePlugin : KotlinCompilerPluginSupportPlugin {
                     config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-jackson:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
                 }
                 // TODO: Add json reader config
-                config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-json-reader:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
+                config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-android-json-reader:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
                 config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-annotations:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
                 config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-runtime:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
             }
