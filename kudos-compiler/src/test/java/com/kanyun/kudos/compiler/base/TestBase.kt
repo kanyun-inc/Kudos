@@ -17,7 +17,7 @@
 package com.kanyun.kudos.compiler.base
 
 import com.bennyhuo.kotlin.compiletesting.extensions.module.COMPILER_OUTPUT_LEVEL_WARN
-import com.bennyhuo.kotlin.compiletesting.extensions.module.IR_OUTPUT_TYPE_KOTLIN_LIKE
+import com.bennyhuo.kotlin.compiletesting.extensions.module.IR_OUTPUT_TYPE_KOTLIN_LIKE_JC
 import com.bennyhuo.kotlin.compiletesting.extensions.module.KotlinModule
 import com.bennyhuo.kotlin.compiletesting.extensions.module.checkResult
 import com.bennyhuo.kotlin.compiletesting.extensions.source.TextBasedModuleInfoLoader
@@ -146,7 +146,7 @@ open class TestBase {
             executeEntries = true,
             checkCompilerOutput = true,
             compilerOutputLevel = COMPILER_OUTPUT_LEVEL_WARN,
-            irOutputType = IR_OUTPUT_TYPE_KOTLIN_LIKE,
+            irOutputType = IR_OUTPUT_TYPE_KOTLIN_LIKE_JC,
         )
     }
 
