@@ -44,7 +44,7 @@ class FromJsonFunctionDescriptorImpl(
             emptyList(),
             valueParameters,
             classDescriptor.defaultType,
-            Modality.FINAL,
+            Modality.OPEN,
             DescriptorVisibilities.PUBLIC,
         )
     }

@@ -357,8 +357,8 @@ class KudosIrClassTransformer(
 
     private fun needsNoargConstructor(declaration: IrClass): Boolean =
         declaration.kind == ClassKind.CLASS &&
-                declaration.hasKudosAnnotation() &&
-                declaration.constructors.none { it.isZeroParameterConstructor() }
+            declaration.hasKudosAnnotation() &&
+            declaration.constructors.none { it.isZeroParameterConstructor() }
 
     // Returns true if this constructor is callable with no arguments by JVM rules, i.e. will have descriptor `()V`.
     private fun IrConstructor.isZeroParameterConstructor(): Boolean {
@@ -371,7 +371,7 @@ class KudosIrClassTransformer(
         if (irClass.hasKudosAnnotation()) {
             val fieldType = context.irBuiltIns.mapClass.typeWith(
                 context.irBuiltIns.stringClass.defaultType,
-                context.irBuiltIns.booleanClass.defaultType
+                context.irBuiltIns.booleanClass.defaultType,
             )
             val initExpression = context.referenceFunctions(
                 CallableId(FqName("kotlin.collections"), Name.identifier("hashMapOf")),
@@ -379,13 +379,13 @@ class KudosIrClassTransformer(
             val kudosStatusField = if (validatorFunction != null) {
                 irClass.addField(
                     KUDOS_FIELD_STATUS_MAP_IDENTIFIER,
-                    fieldType
+                    fieldType,
                 ).apply {
                     initializer = DeclarationIrBuilder(
                         context,
                         symbol,
                         symbol.owner.startOffset,
-                        symbol.owner.endOffset
+                        symbol.owner.endOffset,
                     ).run {
                         irExprBody(irCall(initExpression))
                     }

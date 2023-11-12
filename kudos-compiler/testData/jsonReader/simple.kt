@@ -21,6 +21,10 @@ class Desc(val descDetail: String) : KudosValidator, KudosJsonAdapter<Desc> {
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
             val tmp0 = jsonReader.nextName()
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.skipValue()
+                continue
+            }
             when {
                 tmp0 == "descDetail" -> {
                     <this>.descDetail = jsonReader.nextString()
@@ -50,6 +54,10 @@ class Project(val projectName: String, val projectId: Int, val tags: List<String
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
             val tmp0 = jsonReader.nextName()
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.skipValue()
+                continue
+            }
             when {
                 tmp0 == "projectName" -> {
                     <this>.projectName = jsonReader.nextString()

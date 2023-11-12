@@ -16,6 +16,10 @@
 
 package com.kanyun.kudos.compiler
 
+import com.kanyun.kudos.compiler.KudosNames.JSON_READER_PEEK_CALLABLE_ID
+import com.kanyun.kudos.compiler.KudosNames.JSON_READER_SKIP_VALUE_CALLABLE_ID
+import com.kanyun.kudos.compiler.KudosNames.JSON_TOKEN_CLASS_ID
+import com.kanyun.kudos.compiler.KudosNames.JSON_TOKEN_NULL_IDENTIFIER
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_JSON_ADAPTER_CLASS_ID
 import com.kanyun.kudos.compiler.utils.irThis
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -25,10 +29,12 @@ import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irBranch
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irContinue
 import org.jetbrains.kotlin.ir.builders.irElseBranch
 import org.jetbrains.kotlin.ir.builders.irEquals
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetField
+import org.jetbrains.kotlin.ir.builders.irIfThen
 import org.jetbrains.kotlin.ir.builders.irNotEquals
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irReturn
@@ -39,11 +45,13 @@ import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.builders.irWhen
 import org.jetbrains.kotlin.ir.builders.irWhile
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrEnumEntry
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBranch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
@@ -106,6 +114,31 @@ internal class KudosFromJsonFunctionBuilder(
                         dispatchReceiver = irGet(jsonReader)
                     },
                 )
+                val jsonReaderPeekExpression = irCall(pluginContext.referenceFunctions(JSON_READER_PEEK_CALLABLE_ID).first()).apply {
+                    dispatchReceiver = irGet(jsonReader)
+                }
+                val jsonTokenClass = pluginContext.referenceClass(JSON_TOKEN_CLASS_ID)!!
+                val jsonTokenNullEntry = jsonTokenClass.owner.declarations.filterIsInstance<IrEnumEntry>().first {
+                    it.name == JSON_TOKEN_NULL_IDENTIFIER
+                }
+                val jsonTokenNullExpression = IrGetEnumValueImpl(
+                    startOffset,
+                    endOffset,
+                    jsonTokenClass.defaultType,
+                    jsonTokenNullEntry.symbol,
+                )
+                +irIfThen(
+                    context.irBuiltIns.unitType,
+                    irEquals(jsonReaderPeekExpression, jsonTokenNullExpression),
+                    irBlock {
+                        +irCall(
+                            pluginContext.referenceFunctions(JSON_READER_SKIP_VALUE_CALLABLE_ID).first(),
+                        ).apply {
+                            dispatchReceiver = irGet(jsonReader)
+                        }
+                        +irContinue(this@apply)
+                    },
+                )
                 val branches = ArrayList<IrBranch>()
                 fields.forEach { field ->
                     branches.add(
@@ -113,7 +146,7 @@ internal class KudosFromJsonFunctionBuilder(
                             irEquals(irGet(name), irString(field.name.asString())),
                             irBlock {
                                 +irSetField(irFunction.irThis(), field, getNextValue(field))
-                                if (kudosStatusField!=null) {
+                                if (kudosStatusField != null) {
                                     +irCall(
                                         pluginContext.referenceFunctions(
                                             CallableId(FqName("java.util"), FqName("Map"), Name.identifier("put")),
@@ -124,17 +157,13 @@ internal class KudosFromJsonFunctionBuilder(
                                         dispatchReceiver = irGetField(irFunction.irThis(), kudosStatusField)
                                     }
                                 }
-                            }
+                            },
                         ),
                     )
                 }
                 branches.add(
                     irElseBranch(
-                        irCall(
-                            pluginContext.referenceFunctions(
-                                CallableId(FqName("android.util"), FqName("JsonReader"), Name.identifier("skipValue")),
-                            ).first(),
-                        ).apply {
+                        irCall(pluginContext.referenceFunctions(JSON_READER_SKIP_VALUE_CALLABLE_ID).first()).apply {
                             dispatchReceiver = irGet(jsonReader)
                         },
                     ),

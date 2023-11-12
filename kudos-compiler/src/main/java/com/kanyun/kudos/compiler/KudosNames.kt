@@ -16,6 +16,7 @@
 
 package com.kanyun.kudos.compiler
 
+import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -41,11 +42,18 @@ object KudosNames {
     val KUDOS_VALIDATOR_CLASS_ID = ClassId(FqName("com.kanyun.kudos.validator"), Name.identifier("KudosValidator"))
     val KUDOS_JSON_ADAPTER_CLASS_ID = ClassId(FqName("com.kanyun.kudos.json.reader.adapter"), Name.identifier("KudosJsonAdapter"))
     val JSON_READER_CLASS_ID = ClassId.fromString("android/util/JsonReader")
+    val JSON_TOKEN_CLASS_ID = ClassId(FqName("android.util"), Name.identifier("JsonToken"))
+
+    // CallableId
+    val JSON_READER_SKIP_VALUE_CALLABLE_ID = CallableId(FqName("android.util"), FqName("JsonReader"), Name.identifier("skipValue"))
+    val JSON_READER_PEEK_CALLABLE_ID = CallableId(FqName("android.util"), FqName("JsonReader"), Name.identifier("peek"))
+    val JSON_TOKEN_NULL_CALLABLE_ID = CallableId(FqName("android.util"), FqName("JsonToken"), Name.identifier("NULL"))
 
     // Name.identifier
     val KUDOS_FROM_JSON_IDENTIFIER = Name.identifier("fromJson")
     val JSON_READER_IDENTIFIER = Name.identifier("jsonReader")
     val KUDOS_FIELD_STATUS_MAP_IDENTIFIER = Name.identifier("kudosFieldStatusMap")
+    val JSON_TOKEN_NULL_IDENTIFIER = Name.identifier("NULL")
 
     val CONTAINER_FQ_NAMES = setOf(
         "kotlin.Array",

@@ -18,6 +18,8 @@ package com.kanyun.kudos.json.reader
 
 import android.util.JsonReader
 import com.kanyun.kudos.json.reader.adapter.KudosJsonAdapter
+import com.kanyun.kudos.json.reader.adapter.parseKudosObject
+import java.lang.reflect.Type
 
 object KudosAndroidJsonReader {
     inline fun <reified T> fromJson(json: String): T {
@@ -32,5 +34,10 @@ object KudosAndroidJsonReader {
         } else {
             throw IllegalArgumentException("class ${clazz.name} must implement KudosJsonAdapter")
         }
+    }
+
+    fun <T> fromJson(json: String, type: Type): T {
+        val jsonReader = JsonReader(json.reader())
+        return parseKudosObject(jsonReader, type) as T
     }
 }
