@@ -28,6 +28,9 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irElseBranch
 import org.jetbrains.kotlin.ir.builders.irEquals
 import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irGetField
+import org.jetbrains.kotlin.ir.builders.irNotEquals
+import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.builders.irString
@@ -38,6 +41,7 @@ import org.jetbrains.kotlin.ir.builders.irWhile
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBranch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
@@ -58,6 +62,8 @@ internal class KudosFromJsonFunctionBuilder(
     private val irClass: IrClass,
     private val irFunction: IrFunction,
     private val pluginContext: IrPluginContext,
+    private val kudosStatusField: IrField?,
+    private val validatorFunction: IrSimpleFunction?,
     startOffset: Int = SYNTHETIC_OFFSET,
     endOffset: Int = SYNTHETIC_OFFSET,
 ) : IrBlockBodyBuilder(pluginContext, Scope(irFunction.symbol), startOffset, endOffset) {
@@ -105,7 +111,20 @@ internal class KudosFromJsonFunctionBuilder(
                     branches.add(
                         irBranch(
                             irEquals(irGet(name), irString(field.name.asString())),
-                            irSetField(irFunction.irThis(), field, getNextValue(field)),
+                            irBlock {
+                                +irSetField(irFunction.irThis(), field, getNextValue(field))
+                                if (kudosStatusField!=null) {
+                                    +irCall(
+                                        pluginContext.referenceFunctions(
+                                            CallableId(FqName("java.util"), FqName("Map"), Name.identifier("put")),
+                                        ).first(),
+                                    ).apply {
+                                        putValueArgument(0, irString(field.name.asString()))
+                                        putValueArgument(1, irNotEquals(irGetField(irFunction.irThis(), field), irNull()))
+                                        dispatchReceiver = irGetField(irFunction.irThis(), kudosStatusField)
+                                    }
+                                }
+                            }
                         ),
                     )
                 }
@@ -129,6 +148,12 @@ internal class KudosFromJsonFunctionBuilder(
             ).first(),
         ).apply {
             dispatchReceiver = irGet(jsonReader)
+        }
+        if (validatorFunction != null && kudosStatusField != null) {
+            +irCall(validatorFunction.symbol).apply {
+                putValueArgument(0, irGetField(irFunction.irThis(), kudosStatusField))
+                dispatchReceiver = irFunction.irThis()
+            }
         }
         +irReturn(
             irFunction.irThis(),

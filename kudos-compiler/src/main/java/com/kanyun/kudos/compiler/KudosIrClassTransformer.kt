@@ -18,27 +18,32 @@ package com.kanyun.kudos.compiler
 
 import com.kanyun.kudos.compiler.KudosNames.ADAPTER_FACTORY_NAME
 import com.kanyun.kudos.compiler.KudosNames.JSON_ADAPTER_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_FIELD_STATUS_MAP_IDENTIFIER
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR_NAME
 import com.kanyun.kudos.compiler.options.Options
 import com.kanyun.kudos.compiler.utils.addOverride
 import com.kanyun.kudos.compiler.utils.hasKudosAnnotation
 import com.kanyun.kudos.compiler.utils.irThis
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.Scope
+import org.jetbrains.kotlin.ir.builders.declarations.addField
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.declarations.buildConstructor
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irExprBody
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrField
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
@@ -90,8 +95,8 @@ class KudosIrClassTransformer(
             generateJsonAdapter()
         }
         generateNoArgConstructor()
-        generateValidator()
-        generateFromJson()
+        val validatorFunction = generateValidator()
+        generateFromJson(validatorFunction)
     }
 
     private fun generateJsonAdapter() {
@@ -201,7 +206,7 @@ class KudosIrClassTransformer(
         }
     }
 
-    private fun generateValidator() {
+    private fun generateValidator(): IrSimpleFunction? {
         val nonDefaults = ArrayList<String>()
         val collections = ArrayList<IrField>()
         val arrays = ArrayList<IrField>()
@@ -231,7 +236,7 @@ class KudosIrClassTransformer(
             }
         }
 
-        if (nonDefaults.isEmpty() && collections.isEmpty() && arrays.isEmpty()) return
+        if (nonDefaults.isEmpty() && collections.isEmpty() && arrays.isEmpty()) return null
 
         val statusType = context.irBuiltIns.mapClass.typeWith(
             context.irBuiltIns.stringType,
@@ -245,7 +250,7 @@ class KudosIrClassTransformer(
         }
 
         if (validateFunction?.isFakeOverride == false) {
-            return
+            return validateFunction
         } else if (validateFunction?.isFakeOverride == true) {
             irClass.declarations.remove(validateFunction)
         }
@@ -347,12 +352,13 @@ class KudosIrClassTransformer(
                 }
             }
         }
+        return validateFunction
     }
 
     private fun needsNoargConstructor(declaration: IrClass): Boolean =
         declaration.kind == ClassKind.CLASS &&
-            declaration.hasKudosAnnotation() &&
-            declaration.constructors.none { it.isZeroParameterConstructor() }
+                declaration.hasKudosAnnotation() &&
+                declaration.constructors.none { it.isZeroParameterConstructor() }
 
     // Returns true if this constructor is callable with no arguments by JVM rules, i.e. will have descriptor `()V`.
     private fun IrConstructor.isZeroParameterConstructor(): Boolean {
@@ -361,13 +367,39 @@ class KudosIrClassTransformer(
         } && (valueParameters.isEmpty() || isPrimary || hasAnnotation(JvmNames.JVM_OVERLOADS_FQ_NAME))
     }
 
-    private fun generateFromJson() {
-        irClass.functions.singleOrNull {
-            it.name.identifier == "fromJson"
-        }?.takeIf {
-            it.body == null
-        }?.let { function ->
-            KudosFromJsonFunctionBuilder(irClass, function, context).generateBody()
+    private fun generateFromJson(validatorFunction: IrSimpleFunction?) {
+        if (irClass.hasKudosAnnotation()) {
+            val fieldType = context.irBuiltIns.mapClass.typeWith(
+                context.irBuiltIns.stringClass.defaultType,
+                context.irBuiltIns.booleanClass.defaultType
+            )
+            val initExpression = context.referenceFunctions(
+                CallableId(FqName("kotlin.collections"), Name.identifier("hashMapOf")),
+            ).first()
+            val kudosStatusField = if (validatorFunction != null) {
+                irClass.addField(
+                    KUDOS_FIELD_STATUS_MAP_IDENTIFIER,
+                    fieldType
+                ).apply {
+                    initializer = DeclarationIrBuilder(
+                        context,
+                        symbol,
+                        symbol.owner.startOffset,
+                        symbol.owner.endOffset
+                    ).run {
+                        irExprBody(irCall(initExpression))
+                    }
+                }
+            } else {
+                null
+            }
+            irClass.functions.singleOrNull {
+                it.name.identifier == "fromJson"
+            }?.takeIf {
+                it.body == null
+            }?.let { function ->
+                KudosFromJsonFunctionBuilder(irClass, function, context, kudosStatusField, validatorFunction).generateBody()
+            }
         }
     }
 }

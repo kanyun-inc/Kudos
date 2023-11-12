@@ -45,6 +45,7 @@ object KudosNames {
     // Name.identifier
     val KUDOS_FROM_JSON_IDENTIFIER = Name.identifier("fromJson")
     val JSON_READER_IDENTIFIER = Name.identifier("jsonReader")
+    val KUDOS_FIELD_STATUS_MAP_IDENTIFIER = Name.identifier("kudosFieldStatusMap")
 
     val CONTAINER_FQ_NAMES = setOf(
         "kotlin.Array",
