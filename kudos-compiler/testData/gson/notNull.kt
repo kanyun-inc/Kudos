@@ -28,6 +28,12 @@ class Arrays(
     }
 }
 
+@Kudos
+class Project(val id: Int,val projectDesc: Desc)
+
+@Kudos
+class Desc(val des: String)
+
 fun main() {
     deserialize<User>("""{}""")
     deserialize<User>("""{"id": 10}""")
@@ -37,6 +43,7 @@ fun main() {
     deserialize<KudosCollection<User>>("""[null]""")
     deserialize<KudosList<User>>("""[null]""")
     deserialize<KudosSet<User>>("""[null]""")
+    deserialize<Project>("""{"id": 10, "projectDesc": null}""")
 
     // Maybe supported with Java 8 annotated type. But ... not the moment.
     deserialize<List<User>>("""[null]""")
@@ -60,6 +67,7 @@ java.lang.NullPointerException: Missing non-null field 'name'.
 java.lang.NullPointerException: Element cannot be null for com.kanyun.kudos.collections.KudosCollection.
 java.lang.NullPointerException: Element cannot be null for com.kanyun.kudos.collections.KudosList.
 java.lang.NullPointerException: Element cannot be null for com.kanyun.kudos.collections.KudosSet.
+java.lang.NullPointerException: Missing non-null field 'projectDesc'.
 [null]
 java.lang.NullPointerException: Missing non-null field 'id'.
 User(id=10, name=Bob, age=10)
