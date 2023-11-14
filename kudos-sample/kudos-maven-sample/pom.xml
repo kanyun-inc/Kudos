@@ -12,8 +12,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.8.20</kotlin.version>
-        <kudos.version>1.8.20-1.0.1</kudos.version>
+        <kotlin.version>1.9.20</kotlin.version>
+        <kudos.version>1.9.20-1.0.1</kudos.version>
         <kotlin.code.style>official</kotlin.code.style>
         <junit.version>4.13.1</junit.version>
     </properties>

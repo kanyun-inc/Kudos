@@ -174,7 +174,7 @@ class KudosFirClassChecker(
     ) {
         if (symbol.hasBackingField && !symbol.hasDelegate &&
             !symbol.hasAnnotation(ClassId.topLevel(FqName(KUDOS_IGNORE)), context.session) &&
-            !symbol.hasAnnotation(ClassId.topLevel(FqName(TRANSIENT)), context.session)
+            symbol.backingFieldSymbol?.hasAnnotation(ClassId.topLevel(FqName(TRANSIENT)), context.session) != true
         ) {
             for (type in findNonKudosType(symbol.resolvedReturnType, context)) {
                 reporter.reportOn(

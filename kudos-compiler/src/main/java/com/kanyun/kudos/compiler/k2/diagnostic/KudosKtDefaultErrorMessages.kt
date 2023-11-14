@@ -19,7 +19,6 @@ package com.kanyun.kudos.compiler.k2.diagnostic
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactoryToRendererMap
 import org.jetbrains.kotlin.diagnostics.rendering.BaseDiagnosticRendererFactory
 import org.jetbrains.kotlin.diagnostics.rendering.Renderers
-import org.jetbrains.kotlin.fir.analysis.diagnostics.checkMissingMessages
 
 object KudosKtDefaultErrorMessages : BaseDiagnosticRendererFactory() {
     override val MAP = KtDiagnosticFactoryToRendererMap("Kudos").also { map ->
@@ -72,7 +71,5 @@ object KudosKtDefaultErrorMessages : BaseDiagnosticRendererFactory() {
             KudosKtErrors.GENERIC_TYPE,
             "Generic type is not supported. You can declare a subclass of it providing concrete type arguments.",
         )
-
-        map.checkMissingMessages(KudosKtErrors)
     }
 }

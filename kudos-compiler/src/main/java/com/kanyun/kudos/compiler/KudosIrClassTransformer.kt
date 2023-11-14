@@ -175,7 +175,8 @@ class KudosIrClassTransformer(
             ctor.body = context.irFactory.createBlockBody(
                 ctor.startOffset,
                 ctor.endOffset,
-                listOfNotNull(
+            ).apply {
+                statements += listOfNotNull(
                     // call super
                     IrDelegatingConstructorCallImpl(
                         ctor.startOffset,
@@ -192,8 +193,9 @@ class KudosIrClassTransformer(
                         klass.symbol,
                         context.irBuiltIns.unitType,
                     ),
-                ) + builder.setupDefaultValues(),
-            )
+                )
+                statements += builder.setupDefaultValues()
+            }
         }
     }
 
