@@ -17,13 +17,17 @@
 package com.kanyun.kudos.json.reader.adapter
 
 import android.util.JsonReader
+import android.util.JsonToken
+import com.kanyun.kudos.collections.KudosCollection
+import com.kanyun.kudos.collections.KudosList
+import com.kanyun.kudos.collections.KudosSet
 import java.lang.reflect.Type
 
 interface KudosJsonAdapter<T> {
     fun fromJson(jsonReader: JsonReader): T
 }
 
-fun parseKudosObject(jsonReader: JsonReader, type: Type): Any {
+fun parseKudosObject(jsonReader: JsonReader, type: Type): Any? {
     return if (type is ParameterizedTypeImpl) {
         parseKudosObjectInternal(jsonReader, type.rawType, type.actualTypeArguments)
     } else {
@@ -31,11 +35,24 @@ fun parseKudosObject(jsonReader: JsonReader, type: Type): Any {
     }
 }
 
-private fun parseKudosList(jsonReader: JsonReader, typeArguments: Array<Type>): List<Any> {
-    val list = mutableListOf<Any>()
+private fun parseKudosList(jsonReader: JsonReader, typeArguments: Array<Type>): List<Any?> {
+    val list = mutableListOf<Any?>()
     jsonReader.beginArray()
     while (jsonReader.hasNext()) {
         list.add(parseKudosObject(jsonReader, typeArguments[0]))
+    }
+    jsonReader.endArray()
+    return list
+}
+
+private fun parseKudosCollection(jsonReader: JsonReader, type: Type, typeArguments: Array<Type>): KudosCollection<Any> {
+    val list = KudosList<Any>()
+    jsonReader.beginArray()
+    while (jsonReader.hasNext()) {
+        if (jsonReader.peek() == JsonToken.NULL) {
+            throw NullPointerException("Element cannot be null for ${type.typeName}.")
+        }
+        list.add(parseKudosObject(jsonReader, typeArguments[0])!!)
     }
     jsonReader.endArray()
     return list
@@ -50,8 +67,8 @@ private fun parseKudosArray(jsonReader: JsonReader, typeArguments: Array<Type>):
     return array
 }
 
-private fun parseKudosMap(jsonReader: JsonReader, typeArguments: Array<Type>): Map<String, Any> {
-    val resultMap = mutableMapOf<String, Any>()
+private fun parseKudosMap(jsonReader: JsonReader, typeArguments: Array<Type>): Map<String, Any?> {
+    val resultMap = mutableMapOf<String, Any?>()
     jsonReader.beginObject()
     while (jsonReader.hasNext()) {
         val key = jsonReader.nextName()
@@ -66,7 +83,11 @@ private fun parseKudosObjectInternal(
     jsonReader: JsonReader,
     type: Type,
     typeArguments: Array<Type>,
-): Any {
+): Any? {
+    if (jsonReader.peek() == JsonToken.NULL) {
+        jsonReader.skipValue()
+        return null
+    }
     val value = when (type) {
         String::class.javaObjectType -> jsonReader.nextString()
         Int::class.javaObjectType -> jsonReader.nextInt()
@@ -77,6 +98,9 @@ private fun parseKudosObjectInternal(
         List::class.javaObjectType -> parseKudosList(jsonReader, typeArguments)
         Set::class.javaObjectType -> parseKudosList(jsonReader, typeArguments).toSet()
         Map::class.javaObjectType -> parseKudosMap(jsonReader, typeArguments)
+        KudosList::class.javaObjectType -> parseKudosCollection(jsonReader, type, typeArguments)
+        KudosSet::class.javaObjectType -> parseKudosCollection(jsonReader, type, typeArguments).toCollection(KudosSet())
+        KudosCollection::class.javaObjectType -> parseKudosCollection(jsonReader, type, typeArguments)
         else -> {
             parseKudosObjectSpecial(jsonReader, type, typeArguments)
         }

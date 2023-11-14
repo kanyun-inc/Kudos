@@ -15,102 +15,85 @@ class Project(val projectName: String, val projectId: Int, val tags: List<String
 OK
 // FILE: Main.kt.ir
 package com.kanyun.kudos.test
-
 @Kudos
-class Desc : KudosValidator, KudosJsonAdapter<Desc> {
-    constructor(descDetail: String) /* primary */ {
-        super/*Any*/()
-        /* <init>() */
-
-    }
-
-    val descDetail: String
-        field = descDetail
-        get
-
-    /* fake */ override operator fun equals(other: Any?): Boolean
-    /* fake */ override fun hashCode(): Int
-    /* fake */ override fun toString(): String
+class Desc(val descDetail: String) : KudosValidator, KudosJsonAdapter<Desc> {
     override fun fromJson(jsonReader: JsonReader): Desc {
         jsonReader.beginObject()
-        while (jsonReader.hasNext()) { // BLOCK
-            val tmp0: @FlexibleNullability String? = jsonReader.nextName()
+        while (jsonReader.hasNext()) {
+            val tmp0 = jsonReader.nextName()
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.skipValue()
+                continue
+            }
             when {
-                EQEQ(arg0 = tmp0, arg1 = "descDetail") -> <this>.#descDetail = jsonReader.nextString()
-                else -> jsonReader.skipValue()
+                tmp0 == "descDetail" -> {
+                    <this>.descDetail = jsonReader.nextString()
+                    <this>.kudosFieldStatusMap.put("descDetail", <this>.descDetail != null)
+                }
+                else -> {
+                    jsonReader.skipValue()
+                }
             }
         }
         jsonReader.endObject()
+        validate(<this>.kudosFieldStatusMap)
         return <this>
     }
-
-    constructor() {
-        super/*Any*/()
-        /* <init>() */
-
+    constructor{
+        ctor<Any>()
+        init<Desc>()
     }
-
     override fun validate(status: Map<String, Boolean>) {
-        validateField(name = "descDetail", fieldStatus = status)
+        validateField("descDetail", status)
     }
-
+    private var kudosFieldStatusMap: Map<String, Boolean> = hashMapOf()
 }
-
 @Kudos
-class Project : KudosValidator, KudosJsonAdapter<Project> {
-    constructor(projectName: String, projectId: Int, tags: List<String>, desc: Desc) /* primary */ {
-        super/*Any*/()
-        /* <init>() */
-
-    }
-
-    val projectName: String
-        field = projectName
-        get
-
-    val projectId: Int
-        field = projectId
-        get
-
-    val tags: List<String>
-        field = tags
-        get
-
-    val desc: Desc
-        field = desc
-        get
-
-    /* fake */ override operator fun equals(other: Any?): Boolean
-    /* fake */ override fun hashCode(): Int
-    /* fake */ override fun toString(): String
+class Project(val projectName: String, val projectId: Int, val tags: List<String>, val desc: Desc) : KudosValidator, KudosJsonAdapter<Project> {
     override fun fromJson(jsonReader: JsonReader): Project {
         jsonReader.beginObject()
-        while (jsonReader.hasNext()) { // BLOCK
-            val tmp0: @FlexibleNullability String? = jsonReader.nextName()
+        while (jsonReader.hasNext()) {
+            val tmp0 = jsonReader.nextName()
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.skipValue()
+                continue
+            }
             when {
-                EQEQ(arg0 = tmp0, arg1 = "projectName") -> <this>.#projectName = jsonReader.nextString()
-                EQEQ(arg0 = tmp0, arg1 = "projectId") -> <this>.#projectId = jsonReader.nextInt()
-                EQEQ(arg0 = tmp0, arg1 = "tags") -> <this>.#tags = parseKudosObject(jsonReader = jsonReader, type = ParameterizedTypeImpl(type = KClass::class.<get-javaObjectType></* null */>(), typeArguments = arrayOf</* null */>(elements = [KClass::class.<get-javaObjectType></* null */>()])))
-                EQEQ(arg0 = tmp0, arg1 = "desc") -> <this>.#desc = parseKudosObject(jsonReader = jsonReader, type = KClass::class.<get-javaObjectType></* null */>())
-                else -> jsonReader.skipValue()
+                tmp0 == "projectName" -> {
+                    <this>.projectName = jsonReader.nextString()
+                    <this>.kudosFieldStatusMap.put("projectName", <this>.projectName != null)
+                }
+                tmp0 == "projectId" -> {
+                    <this>.projectId = jsonReader.nextInt()
+                    <this>.kudosFieldStatusMap.put("projectId", <this>.projectId != null)
+                }
+                tmp0 == "tags" -> {
+                    <this>.tags = parseKudosObject(jsonReader, ParameterizedTypeImpl(List<String>::class.javaObjectType, arrayOf(String::class.javaObjectType)))
+                    <this>.kudosFieldStatusMap.put("tags", <this>.tags != null)
+                }
+                tmp0 == "desc" -> {
+                    <this>.desc = parseKudosObject(jsonReader, Desc::class.javaObjectType)
+                    <this>.kudosFieldStatusMap.put("desc", <this>.desc != null)
+                }
+                else -> {
+                    jsonReader.skipValue()
+                }
             }
         }
         jsonReader.endObject()
+        validate(<this>.kudosFieldStatusMap)
         return <this>
     }
-
-    constructor() {
-        super/*Any*/()
-        /* <init>() */
-
+    constructor{
+        ctor<Any>()
+        init<Project>()
     }
-
     override fun validate(status: Map<String, Boolean>) {
-        validateField(name = "projectName", fieldStatus = status)
-        validateField(name = "projectId", fieldStatus = status)
-        validateField(name = "tags", fieldStatus = status)
-        validateField(name = "desc", fieldStatus = status)
-        validateCollection(name = "tags", collection = <this>.#tags, typeName = "List")
+        validateField("projectName", status)
+        validateField("projectId", status)
+        validateField("tags", status)
+        validateField("desc", status)
+        validateCollection("tags", <this>.tags, "List")
     }
-
+    private var kudosFieldStatusMap: Map<String, Boolean> = hashMapOf()
 }

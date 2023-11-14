@@ -17,7 +17,7 @@
 package com.kanyun.kudos.compiler.base
 
 import com.bennyhuo.kotlin.compiletesting.extensions.module.COMPILER_OUTPUT_LEVEL_WARN
-import com.bennyhuo.kotlin.compiletesting.extensions.module.IR_OUTPUT_TYPE_KOTLIN_LIKE
+import com.bennyhuo.kotlin.compiletesting.extensions.module.IR_OUTPUT_TYPE_KOTLIN_LIKE_JC
 import com.bennyhuo.kotlin.compiletesting.extensions.module.KotlinModule
 import com.bennyhuo.kotlin.compiletesting.extensions.module.checkResult
 import com.bennyhuo.kotlin.compiletesting.extensions.source.TextBasedModuleInfoLoader
@@ -68,8 +68,9 @@ open class TestBase {
             import com.google.gson.annotations.JsonAdapter
             import com.kanyun.kudos.gson.kudosGson
             import com.kanyun.kudos.gson.adapter.KudosReflectiveTypeAdapterFactory
+            import java.lang.reflect.Type
             
-            inline fun <reified T: Any> deserialize(string: String): T? {
+            inline fun <reified T: Any> deserialize(string: String, type: Type = T::class.java): T? {
                 val gson = kudosGson()
                 return try {
                     val t: T = gson.fromJson(string, object: TypeToken<T>() {}.type)
@@ -89,8 +90,9 @@ open class TestBase {
             import com.kanyun.kudos.jackson.kudosObjectMapper
             import com.fasterxml.jackson.core.type.TypeReference
             import com.fasterxml.jackson.databind.DeserializationFeature
+            import java.lang.reflect.Type
             
-            inline fun <reified T: Any> deserialize(string: String): T? {
+            inline fun <reified T: Any> deserialize(string: String, type: Type = T::class.java): T? {
                 val mapper = kudosObjectMapper()
                 mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
                 mapper.disable(DeserializationFeature.WRAP_EXCEPTIONS);
@@ -110,10 +112,11 @@ open class TestBase {
         return """
             // FILE: JsonReader.kt
             import com.kanyun.kudos.json.reader.KudosAndroidJsonReader
+            import java.lang.reflect.Type
             
-            inline fun <reified T: Any> deserialize(string: String): T? {
+            inline fun <reified T: Any> deserialize(string: String, type: Type = T::class.java): T? {
                 return try {
-                    val t: T = KudosAndroidJsonReader.fromJson(string)
+                    val t: T = KudosAndroidJsonReader.fromJson(string, type)
                     println(t)
                     t
                 } catch (e: Exception) {
@@ -146,7 +149,7 @@ open class TestBase {
             executeEntries = true,
             checkCompilerOutput = true,
             compilerOutputLevel = COMPILER_OUTPUT_LEVEL_WARN,
-            irOutputType = IR_OUTPUT_TYPE_KOTLIN_LIKE,
+            irOutputType = IR_OUTPUT_TYPE_KOTLIN_LIKE_JC,
         )
     }
 

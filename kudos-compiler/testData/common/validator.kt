@@ -62,7 +62,7 @@ import com.kanyun.kudos.test.User
 
 fun main() {
     (User() as KudosValidator).validate(emptyMap())
-    (Developer("kanyun") as KudosValidator).validate(emptyMap())
+    (Developer("kanyun") as KudosValidator).validate(hashMapOf("company" to true))
 }
 
 // EXPECT

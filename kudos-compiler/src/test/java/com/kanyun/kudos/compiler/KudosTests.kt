@@ -37,16 +37,19 @@ class KudosTests : TestBase() {
     fun `common_initBlock`() = testBase()
 
     @Test
+    fun `common_notNull`() = testBase()
+
+    @Test
     fun `common_propertyTypeCheck`() = testBase()
+
+    @Test
+    fun `common_validator`() = testBase()
 
     @Test
     fun `gson_jsonAdapterCheck`() = testBase()
 
     @Test
     fun `gson_notNull`() = testBase()
-
-    @Test
-    fun `gson_validator`() = testBase()
 
     @Test
     fun `jsonReader_deserialize`() = testBase()
@@ -62,6 +65,9 @@ class KudosTests : TestBase() {
 
     @Test
     fun `jsonReader_deserializeSetType`() = testBase()
+
+    @Test
+    fun `jsonReader_notNull`() = testBase()
 
     @Test
     fun `jsonReader_simple`() = testBase()
