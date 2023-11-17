@@ -109,6 +109,7 @@ open class TestBase {
     }
 
     private fun jsonReaderDeserialize(): String {
+        Options.androidJsonReader.set(true)
         return """
             // FILE: JsonReader.kt
             import com.kanyun.kudos.json.reader.KudosAndroidJsonReader

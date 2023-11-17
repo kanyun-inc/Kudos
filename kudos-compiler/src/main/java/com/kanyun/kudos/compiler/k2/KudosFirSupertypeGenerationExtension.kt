@@ -16,20 +16,29 @@
 
 package com.kanyun.kudos.compiler.k2
 
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_ANNOTATION_CLASS_ID
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_JSON_ADAPTER_CLASS_ID
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR_CLASS_ID
+import com.kanyun.kudos.compiler.options.Options
+import com.kanyun.kudos.compiler.utils.safeAs
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.FirTypeAlias
+import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
 import org.jetbrains.kotlin.fir.declarations.utils.classId
+import org.jetbrains.kotlin.fir.expressions.FirAnnotation
+import org.jetbrains.kotlin.fir.expressions.FirAnnotationCall
+import org.jetbrains.kotlin.fir.expressions.FirPropertyAccessExpression
+import org.jetbrains.kotlin.fir.expressions.arguments
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationPredicateRegistrar
 import org.jetbrains.kotlin.fir.extensions.FirSupertypeGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.predicate.DeclarationPredicate
 import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
+import org.jetbrains.kotlin.fir.references.impl.FirSimpleNamedReference
 import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.scopes.impl.toConeType
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
@@ -49,6 +58,7 @@ import org.jetbrains.kotlin.name.ClassId
  */
 class KudosFirSupertypeGenerationExtension(
     session: FirSession,
+    private val kudosAnnotationValueMap: HashMap<String, List<Int>>,
 ) : FirSupertypeGenerationExtension(session) {
 
     private val hasKudos = DeclarationPredicate.create {
@@ -66,6 +76,9 @@ class KudosFirSupertypeGenerationExtension(
     ): List<FirResolvedTypeRef> {
         var hasValidator = false
         var hasJsonAdapter = false
+        val annotationValues = classLikeDeclaration.symbol.resolvedAnnotationsWithArguments.getAnnotationByClassId(KUDOS_ANNOTATION_CLASS_ID, session)
+            ?.getIntArrayArgument()
+        kudosAnnotationValueMap[classLikeDeclaration.classId.toString()] = annotationValues ?: emptyList()
         for (superTypeRef in resolvedSupertypes) {
             val superType = superTypeRef.type
             val superTypeClassIds = superType.allSuperTypeClassIds()
@@ -86,19 +99,21 @@ class KudosFirSupertypeGenerationExtension(
                 )
             }
         }
-        if (!hasJsonAdapter) {
-            val genericType = ConeClassLikeTypeImpl(
-                ConeClassLikeLookupTagImpl(classLikeDeclaration.classId),
-                classLikeDeclaration.typeParameters.map {
-                    it.toConeType()
-                }.toTypedArray(),
-                false,
-            )
-            firTypeRefList += buildResolvedTypeRef {
-                type = KUDOS_JSON_ADAPTER_CLASS_ID.constructClassLikeType(
-                    arrayOf(genericType),
-                    isNullable = false,
+        if (Options.isAndroidJsonReaderEnabled(kudosAnnotationValueMap, classLikeDeclaration.classId.toString())) {
+            if (!hasJsonAdapter) {
+                val genericType = ConeClassLikeTypeImpl(
+                    ConeClassLikeLookupTagImpl(classLikeDeclaration.classId),
+                    classLikeDeclaration.typeParameters.map {
+                        it.toConeType()
+                    }.toTypedArray(),
+                    false,
                 )
+                firTypeRefList += buildResolvedTypeRef {
+                    type = KUDOS_JSON_ADAPTER_CLASS_ID.constructClassLikeType(
+                        arrayOf(genericType),
+                        isNullable = false,
+                    )
+                }
             }
         }
         return firTypeRefList
@@ -132,6 +147,29 @@ class KudosFirSupertypeGenerationExtension(
             is FirUserTypeRef -> typeResolver.resolveUserType(it).type
             is FirResolvedTypeRef -> it.type
             else -> null
+        }
+    }
+
+    private fun FirAnnotation.getIntArrayArgument(): List<Int>? {
+        if (this !is FirAnnotationCall) return null
+        return arguments.mapNotNull {
+            when (it.safeAs<FirPropertyAccessExpression>()?.calleeReference?.safeAs<FirSimpleNamedReference>()?.name?.asString()) {
+                "KUDOS_ANDROID_JSON_READER" -> {
+                    Options.KUDOS_ANDROID_JSON_READER
+                }
+
+                "KUDOS_GSON" -> {
+                    Options.KUDOS_GSON
+                }
+
+                "KUDOS_JACKSON" -> {
+                    Options.KUDOS_JACKSON
+                }
+
+                else -> {
+                    null
+                }
+            }
         }
     }
 }

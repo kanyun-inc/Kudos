@@ -21,4 +21,4 @@ package com.kanyun.kudos.annotations
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-annotation class Kudos
+annotation class Kudos(vararg val value: Int)

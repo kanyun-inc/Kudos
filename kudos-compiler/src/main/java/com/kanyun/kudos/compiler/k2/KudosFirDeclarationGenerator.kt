@@ -20,6 +20,7 @@ import com.kanyun.kudos.compiler.KudosNames.JSON_READER_CLASS_ID
 import com.kanyun.kudos.compiler.KudosNames.JSON_READER_IDENTIFIER
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_FROM_JSON_IDENTIFIER
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
+import com.kanyun.kudos.compiler.options.Options
 import org.jetbrains.kotlin.GeneratedDeclarationKey
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
@@ -48,8 +49,10 @@ import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
-class KudosFirDeclarationGenerator(session: FirSession) :
-    FirDeclarationGenerationExtension(session) {
+class KudosFirDeclarationGenerator(
+    session: FirSession,
+    private val kudosAnnotationValueMap: HashMap<String, List<Int>>,
+) : FirDeclarationGenerationExtension(session) {
 
     companion object {
         private val PREDICATE = LookupPredicate.create {
@@ -71,8 +74,10 @@ class KudosFirDeclarationGenerator(session: FirSession) :
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>): Set<Name> {
-        if (classSymbol in matchedClasses) {
-            return kudosMethodsNames
+        if (Options.isAndroidJsonReaderEnabled(kudosAnnotationValueMap, classSymbol.classId.toString())) {
+            if (classSymbol in matchedClasses) {
+                return kudosMethodsNames
+            }
         }
         return super.getCallableNamesForClass(classSymbol)
     }

@@ -41,3 +41,5 @@ object KudosAndroidJsonReader {
         return parseKudosObject(jsonReader, type) as T
     }
 }
+
+const val KUDOS_ANDROID_JSON_READER: Int = 3
