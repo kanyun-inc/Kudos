@@ -46,11 +46,11 @@ class KudosCompilerPluginRegistrar : CompilerPluginRegistrar() {
         configuration.get(NoArgConfigurationKeys.PRESET)?.forEach { preset ->
             NoArgPluginNames.SUPPORTED_PRESETS[preset]?.let { noArgAnnotations += it }
         }
-
-        IrGenerationExtension.registerExtension(KudosIrGenerationExtension())
-        SyntheticResolveExtension.registerExtension(KudosSyntheticResolveExtension())
+        val kudosAnnotationValueMap = hashMapOf<String, List<Int>>()
+        IrGenerationExtension.registerExtension(KudosIrGenerationExtension(kudosAnnotationValueMap))
+        SyntheticResolveExtension.registerExtension(KudosSyntheticResolveExtension(kudosAnnotationValueMap))
         StorageComponentContainerContributor.registerExtension(KudosComponentContainerContributor(noArgAnnotations))
-        FirExtensionRegistrarAdapter.registerExtension(KudosFirExtensionRegistrar(noArgAnnotations))
+        FirExtensionRegistrarAdapter.registerExtension(KudosFirExtensionRegistrar(noArgAnnotations, kudosAnnotationValueMap))
     }
 
     override val supportsK2: Boolean

@@ -3,11 +3,12 @@
 package com.kanyun.kudos.test
 
 import com.kanyun.kudos.annotations.Kudos
+import com.kanyun.kudos.json.reader.KUDOS_ANDROID_JSON_READER
 
-@Kudos
+@Kudos(KUDOS_ANDROID_JSON_READER)
 class Desc(val descDetail: String)
 
-@Kudos
+@Kudos(KUDOS_ANDROID_JSON_READER)
 class Project(val projectName: String, val projectId: Int, val tags: List<String>,val desc: Desc)
 
 // EXPECT
@@ -15,7 +16,7 @@ class Project(val projectName: String, val projectId: Int, val tags: List<String
 OK
 // FILE: Main.kt.ir
 package com.kanyun.kudos.test
-@Kudos(value = )
+@Kudos(value = 3)
 class Desc(val descDetail: String) : KudosValidator, KudosJsonAdapter<Desc> {
     override fun fromJson(jsonReader: JsonReader): Desc {
         jsonReader.beginObject()
@@ -48,7 +49,7 @@ class Desc(val descDetail: String) : KudosValidator, KudosJsonAdapter<Desc> {
     }
     private var kudosFieldStatusMap: Map<String, Boolean> = hashMapOf()
 }
-@Kudos(value = )
+@Kudos(value = 3)
 class Project(val projectName: String, val projectId: Int, val tags: List<String>, val desc: Desc) : KudosValidator, KudosJsonAdapter<Project> {
     override fun fromJson(jsonReader: JsonReader): Project {
         jsonReader.beginObject()

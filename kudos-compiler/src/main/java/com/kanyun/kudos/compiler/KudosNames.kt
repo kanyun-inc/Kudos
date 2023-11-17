@@ -39,6 +39,7 @@ object KudosNames {
     val ADAPTER_FACTORY_NAME = FqName("com.kanyun.kudos.gson.adapter.KudosReflectiveTypeAdapterFactory")
 
     // ClassId
+    val KUDOS_ANNOTATION_CLASS_ID = ClassId(FqName("com.kanyun.kudos.annotations"), Name.identifier("Kudos"))
     val KUDOS_VALIDATOR_CLASS_ID = ClassId(FqName("com.kanyun.kudos.validator"), Name.identifier("KudosValidator"))
     val KUDOS_JSON_ADAPTER_CLASS_ID = ClassId(FqName("com.kanyun.kudos.json.reader.adapter"), Name.identifier("KudosJsonAdapter"))
     val JSON_READER_CLASS_ID = ClassId.fromString("android/util/JsonReader")
@@ -50,6 +51,7 @@ object KudosNames {
     val JSON_TOKEN_NULL_CALLABLE_ID = CallableId(FqName("android.util"), FqName("JsonToken"), Name.identifier("NULL"))
 
     // Name.identifier
+    val KUDOS_VALUE_IDENTIFIER = Name.identifier("value")
     val KUDOS_FROM_JSON_IDENTIFIER = Name.identifier("fromJson")
     val JSON_READER_IDENTIFIER = Name.identifier("jsonReader")
     val KUDOS_FIELD_STATUS_MAP_IDENTIFIER = Name.identifier("kudosFieldStatusMap")

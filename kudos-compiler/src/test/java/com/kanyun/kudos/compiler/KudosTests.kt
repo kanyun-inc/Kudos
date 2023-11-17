@@ -46,10 +46,16 @@ class KudosTests : TestBase() {
     fun `common_validator`() = testBase()
 
     @Test
+    fun `gson_annotation`() = testBase()
+
+    @Test
     fun `gson_jsonAdapterCheck`() = testBase()
 
     @Test
     fun `gson_notNull`() = testBase()
+
+    @Test
+    fun `jsonReader_annotation`() = testBase()
 
     @Test
     fun `jsonReader_deserialize`() = testBase()

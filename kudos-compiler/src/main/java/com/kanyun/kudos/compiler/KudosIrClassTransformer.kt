@@ -63,6 +63,7 @@ import org.jetbrains.kotlin.ir.types.starProjectedType
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
+import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.copyTo
 import org.jetbrains.kotlin.ir.util.defaultType
@@ -86,17 +87,20 @@ class KudosIrClassTransformer(
     private val context: IrPluginContext,
     private val irClass: IrClass,
     private val noArgConstructors: MutableMap<IrClass, IrConstructor>,
+    private val kudosAnnotationValueMap: HashMap<String, List<Int>>,
 ) {
 
     private val defaults = HashSet<String>()
 
     fun transform() {
-        if (Options.gson()) {
+        if (Options.isGsonEnabled(kudosAnnotationValueMap, irClass.classId?.asString())) {
             generateJsonAdapter()
         }
         generateNoArgConstructor()
         val validatorFunction = generateValidator()
-        generateFromJson(validatorFunction)
+        if (Options.isAndroidJsonReaderEnabled(kudosAnnotationValueMap, irClass.classId?.asString())) {
+            generateFromJson(validatorFunction)
+        }
     }
 
     private fun generateJsonAdapter() {

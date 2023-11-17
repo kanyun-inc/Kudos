@@ -18,6 +18,10 @@ package com.kanyun.kudos.compiler.options
 
 object Options {
 
+    const val KUDOS_GSON = 1
+    const val KUDOS_JACKSON = 2
+    const val KUDOS_ANDROID_JSON_READER = 3
+
     @JvmField
     val gson = Option(
         "gson",
@@ -34,9 +38,37 @@ object Options {
         "<true/false>",
     )
 
+    @JvmField
+    val androidJsonReader = Option(
+        "androidJsonReader",
+        false,
+        "Whether to enable the support for AndroidJsonReader.",
+        "<true/false>",
+    )
+
     val all = Options::class.java.declaredFields.filter {
         it.type == Option::class.java
     }.map {
         it.get(null) as Option<*>
+    }
+
+    fun isGsonEnabled(kudosAnnotationValueMap: HashMap<String, List<Int>>, className: String?): Boolean {
+        if (className.isNullOrEmpty()) return false
+        val annotationValue = kudosAnnotationValueMap[className]
+        return if (annotationValue.isNullOrEmpty()) {
+            gson()
+        } else {
+            annotationValue.contains(KUDOS_GSON)
+        }
+    }
+
+    fun isAndroidJsonReaderEnabled(kudosAnnotationValueMap: HashMap<String, List<Int>>, className: String?): Boolean {
+        if (className.isNullOrEmpty()) return false
+        val annotationValue = kudosAnnotationValueMap[className]
+        return if (annotationValue.isNullOrEmpty()) {
+            androidJsonReader()
+        } else {
+            annotationValue.contains(KUDOS_ANDROID_JSON_READER)
+        }
     }
 }
