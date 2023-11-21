@@ -152,8 +152,8 @@ class KudosFirSupertypeGenerationExtension(
 
     private fun FirAnnotation.getIntArrayArgument(): List<Int>? {
         if (this !is FirAnnotationCall) return null
-        return arguments.mapNotNull {
-            when (it.safeAs<FirPropertyAccessExpression>()?.calleeReference?.safeAs<FirSimpleNamedReference>()?.name?.asString()) {
+        return arguments.map {
+            when (val annotationValue = it.safeAs<FirPropertyAccessExpression>()?.calleeReference?.safeAs<FirSimpleNamedReference>()?.name?.asString()) {
                 "KUDOS_ANDROID_JSON_READER" -> {
                     Options.KUDOS_ANDROID_JSON_READER
                 }
@@ -167,7 +167,7 @@ class KudosFirSupertypeGenerationExtension(
                 }
 
                 else -> {
-                    null
+                    throw IllegalArgumentException("unknown annotation argument $annotationValue")
                 }
             }
         }

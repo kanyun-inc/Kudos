@@ -32,10 +32,10 @@ object KudosAndroidJsonReader {
         return fromJson(inputStream.bufferedReader(), T::class.java)
     }
 
-    fun <T> fromJson(bufferReader: BufferedReader, clazz: Class<T>): T {
+    fun <T> fromJson(bufferedReader: BufferedReader, clazz: Class<T>): T {
         val adapter = clazz.getDeclaredConstructor().newInstance()
         return if (adapter is KudosJsonAdapter<*>) {
-            val jsonReader = JsonReader(bufferReader)
+            val jsonReader = JsonReader(bufferedReader)
             adapter.fromJson(jsonReader) as T
         } else {
             throw IllegalArgumentException("class ${clazz.name} must implement KudosJsonAdapter")

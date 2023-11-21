@@ -21,6 +21,7 @@ object Options {
     const val KUDOS_GSON = 1
     const val KUDOS_JACKSON = 2
     const val KUDOS_ANDROID_JSON_READER = 3
+    val validAnnotationList = listOf(KUDOS_GSON, KUDOS_JACKSON, KUDOS_ANDROID_JSON_READER)
 
     @JvmField
     val gson = Option(

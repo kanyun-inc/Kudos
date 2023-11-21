@@ -60,6 +60,9 @@ class KudosSyntheticResolveExtension(
         if (thisDescriptor.annotations.hasAnnotation(KUDOS_NAME)) {
             val kudosAnnotation = thisDescriptor.annotations.findAnnotation(KUDOS_NAME)
             val annotationValues = kudosAnnotation?.allValueArguments?.values?.firstOrNull()?.value?.safeAs<List<IntValue>>()?.map {
+                if (it.value !in Options.validAnnotationList) {
+                    throw IllegalArgumentException("unknown annotation argument ${it.value}")
+                }
                 it.value
             }
             kudosAnnotationValueMap[thisDescriptor.classId?.asString() ?: ""] = annotationValues ?: emptyList()
