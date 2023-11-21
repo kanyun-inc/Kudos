@@ -25,6 +25,8 @@ import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR
 import com.kanyun.kudos.compiler.KudosNames.KUDOS_VALIDATOR_CLASS_ID
 import com.kanyun.kudos.compiler.k1.symbol.FromJsonFunctionDescriptorImpl
+import com.kanyun.kudos.compiler.options.Options
+import com.kanyun.kudos.compiler.utils.safeAs
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
@@ -35,6 +37,8 @@ import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
 import org.jetbrains.kotlin.js.descriptorUtils.getKotlinTypeFqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.constants.IntValue
+import org.jetbrains.kotlin.resolve.descriptorUtil.classId
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.extensions.SyntheticResolveExtension
 import org.jetbrains.kotlin.types.KotlinType
@@ -44,7 +48,9 @@ import org.jetbrains.kotlin.types.TypeAttributes
 import org.jetbrains.kotlin.types.TypeProjectionImpl
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 
-class KudosSyntheticResolveExtension : SyntheticResolveExtension {
+class KudosSyntheticResolveExtension(
+    private val kudosAnnotationValueMap: HashMap<String, List<Int>>,
+) : SyntheticResolveExtension {
 
     override fun addSyntheticSupertypes(
         thisDescriptor: ClassDescriptor,
@@ -52,6 +58,14 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
     ) {
         if (thisDescriptor.kind != ClassKind.CLASS) return
         if (thisDescriptor.annotations.hasAnnotation(KUDOS_NAME)) {
+            val kudosAnnotation = thisDescriptor.annotations.findAnnotation(KUDOS_NAME)
+            val annotationValues = kudosAnnotation?.allValueArguments?.values?.firstOrNull()?.value?.safeAs<List<IntValue>>()?.map {
+                if (it.value !in Options.validAnnotationList) {
+                    throw IllegalArgumentException("unknown annotation argument ${it.value}")
+                }
+                it.value
+            }
+            kudosAnnotationValueMap[thisDescriptor.classId?.asString() ?: ""] = annotationValues ?: emptyList()
             val superTypeNames = supertypes.asSequence().flatMap {
                 listOf(it) + it.supertypes()
             }.map {
@@ -68,21 +82,25 @@ class KudosSyntheticResolveExtension : SyntheticResolveExtension {
                     ),
                 )
             }
-            if (KUDOS_JSON_ADAPTER !in superTypeNames) {
-                val kudosJsonAdapter = thisDescriptor.module.findClassAcrossModuleDependencies(KUDOS_JSON_ADAPTER_CLASS_ID)!!
-                supertypes.add(
-                    KotlinTypeFactory.simpleNotNullType(
-                        TypeAttributes.Empty,
-                        kudosJsonAdapter,
-                        listOf(TypeProjectionImpl(thisDescriptor.defaultType)),
-                    ),
-                )
+            if (Options.isAndroidJsonReaderEnabled(kudosAnnotationValueMap, thisDescriptor.classId?.asString())) {
+                if (KUDOS_JSON_ADAPTER !in superTypeNames) {
+                    val kudosJsonAdapter = thisDescriptor.module.findClassAcrossModuleDependencies(KUDOS_JSON_ADAPTER_CLASS_ID)!!
+                    supertypes.add(
+                        KotlinTypeFactory.simpleNotNullType(
+                            TypeAttributes.Empty,
+                            kudosJsonAdapter,
+                            listOf(TypeProjectionImpl(thisDescriptor.defaultType)),
+                        ),
+                    )
+                }
             }
         }
     }
 
     override fun getSyntheticFunctionNames(thisDescriptor: ClassDescriptor): List<Name> {
-        if (thisDescriptor.annotations.hasAnnotation(KUDOS_NAME)) {
+        if (Options.isAndroidJsonReaderEnabled(kudosAnnotationValueMap, thisDescriptor.classId?.asString()) &&
+            thisDescriptor.annotations.hasAnnotation(KUDOS_NAME)
+        ) {
             return listOf(KUDOS_FROM_JSON_IDENTIFIER)
         }
         return super.getSyntheticFunctionNames(thisDescriptor)

@@ -19,17 +19,23 @@ package com.kanyun.kudos.json.reader
 import android.util.JsonReader
 import com.kanyun.kudos.json.reader.adapter.KudosJsonAdapter
 import com.kanyun.kudos.json.reader.adapter.parseKudosObject
+import java.io.BufferedReader
+import java.io.InputStream
 import java.lang.reflect.Type
 
 object KudosAndroidJsonReader {
     inline fun <reified T> fromJson(json: String): T {
-        return fromJson(json, T::class.java)
+        return fromJson(json.reader().buffered(), T::class.java)
     }
 
-    fun <T> fromJson(json: String, clazz: Class<T>): T {
+    inline fun <reified T> fromJson(inputStream: InputStream): T {
+        return fromJson(inputStream.bufferedReader(), T::class.java)
+    }
+
+    fun <T> fromJson(bufferedReader: BufferedReader, clazz: Class<T>): T {
         val adapter = clazz.getDeclaredConstructor().newInstance()
         return if (adapter is KudosJsonAdapter<*>) {
-            val jsonReader = JsonReader(json.reader())
+            val jsonReader = JsonReader(bufferedReader)
             adapter.fromJson(jsonReader) as T
         } else {
             throw IllegalArgumentException("class ${clazz.name} must implement KudosJsonAdapter")
@@ -37,7 +43,14 @@ object KudosAndroidJsonReader {
     }
 
     fun <T> fromJson(json: String, type: Type): T {
-        val jsonReader = JsonReader(json.reader())
+        val jsonReader = JsonReader(json.reader().buffered())
+        return parseKudosObject(jsonReader, type) as T
+    }
+
+    fun <T> fromJson(inputStream: InputStream, type: Type): T {
+        val jsonReader = JsonReader(inputStream.bufferedReader())
         return parseKudosObject(jsonReader, type) as T
     }
 }
+
+const val KUDOS_ANDROID_JSON_READER: Int = 3

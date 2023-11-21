@@ -29,3 +29,5 @@ fun kudosGsonBuilder(): GsonBuilder {
 fun kudosGson(): Gson {
     return kudosGsonBuilder().create()
 }
+
+const val KUDOS_GSON: Int = 1
