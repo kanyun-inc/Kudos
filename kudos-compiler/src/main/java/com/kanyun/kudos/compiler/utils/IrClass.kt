@@ -16,7 +16,7 @@
 
 package com.kanyun.kudos.compiler.utils
 
-import com.kanyun.kudos.compiler.KUDOS
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
 import org.jetbrains.kotlin.backend.jvm.ir.erasedUpperBound
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.builders.declarations.addFunction
@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.name.FqName
  * Created by Benny Huo on 2023/9/8
  */
 fun IrClass.hasKudosAnnotation(): Boolean {
-    return hasAnnotation(FqName(KUDOS))
+    return hasAnnotation(KUDOS_NAME)
 }
 
 fun IrClass.isSubclassOfFqName(fqName: String): Boolean =

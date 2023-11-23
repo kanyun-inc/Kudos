@@ -24,7 +24,7 @@ interface KudosValidator {
 }
 
 fun validateField(name: String, fieldStatus: Map<String, Boolean>) {
-    if (fieldStatus[name] == false) {
+    if (fieldStatus[name] != true) {
         throw NullPointerException("Missing non-null field '$name'.")
     }
 }

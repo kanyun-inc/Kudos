@@ -40,8 +40,10 @@ public class BoundField {
 
     public void read(JsonReader reader, Object value) throws IOException, IllegalAccessException {
         Object fieldValue = typeAdapter.read(reader);
-        if (fieldValue != null || !field.getType().isPrimitive()) {
+        if (fieldValue != null) {
             isInitialized = true;
+        }
+        if (fieldValue != null || !field.getType().isPrimitive()) {
             field.set(value, fieldValue);
         }
     }
