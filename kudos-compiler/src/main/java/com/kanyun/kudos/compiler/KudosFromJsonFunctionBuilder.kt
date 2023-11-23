@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.IrTypeProjection
+import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.isSubtypeOfClass
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
@@ -249,7 +250,7 @@ internal class KudosFromJsonFunctionBuilder(
                 putValueArgument(1, getParameterizedType(field.type))
             }
         } else {
-            throw Exception("Kudos UnSupported type")
+            throw Exception("Kudos UnSupported type ${field.type.classFqName}")
         }
     }
 
