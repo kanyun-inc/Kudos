@@ -25,4 +25,8 @@ do
   ./gradlew :kudos-compiler:test -PJACKSON_VERSION=$jackson_version -PVARIANT=jackson -PKOTLIN_COMPILER=K2
 done
 
+# Android JsonReader
+echo "[Kudos] Testing with Android JsonReader"
+./gradlew :kudos-compiler:test -PVARIANT=jsonReader -PKOTLIN_COMPILER=K2
+
 cd -

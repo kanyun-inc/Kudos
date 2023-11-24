@@ -46,7 +46,9 @@ open class KudosGradlePlugin : KotlinCompilerPluginSupportPlugin {
                 if (kudosExtension.jackson) {
                     config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-jackson:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
                 }
-
+                if (kudosExtension.androidJsonReader) {
+                    config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-android-json-reader:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
+                }
                 config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-annotations:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
                 config += "${BuildConfig.KOTLIN_PLUGIN_GROUP}:kudos-runtime:${BuildConfig.KOTLIN_PLUGIN_VERSION}"
             }
@@ -74,6 +76,9 @@ open class KudosGradlePlugin : KotlinCompilerPluginSupportPlugin {
         }
         if (kudosExtension.jackson) {
             options += SubpluginOption("jackson", "true")
+        }
+        if (kudosExtension.androidJsonReader) {
+            options += SubpluginOption("androidJsonReader", "true")
         }
         return project.provider { options }
     }

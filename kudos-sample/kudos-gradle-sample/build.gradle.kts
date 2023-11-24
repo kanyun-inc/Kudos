@@ -25,6 +25,8 @@ repositories {
     maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
 }
 
+val KUDOS_VERSION: String by extra
+
 kudos {
     gson = true
     jackson = true
@@ -33,6 +35,7 @@ kudos {
 dependencies {
     implementation("com.google.code.gson:gson:2.10")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+    implementation("com.kanyun.kudos:android-json-reader:$KUDOS_VERSION")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     testImplementation("junit:junit:4.13.1")
 }

@@ -22,4 +22,5 @@ package com.kanyun.kudos.gradle
 open class KudosExtension {
     var gson: Boolean = false
     var jackson: Boolean = false
+    var androidJsonReader: Boolean = false
 }

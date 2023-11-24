@@ -16,11 +16,11 @@
 
 package com.kanyun.kudos.compiler.k2
 
-import com.kanyun.kudos.compiler.CONTAINER_FQ_NAMES
-import com.kanyun.kudos.compiler.JSON_ADAPTER
-import com.kanyun.kudos.compiler.KUDOS
-import com.kanyun.kudos.compiler.KUDOS_IGNORE
-import com.kanyun.kudos.compiler.TRANSIENT
+import com.kanyun.kudos.compiler.KudosNames.CONTAINER_FQ_NAMES
+import com.kanyun.kudos.compiler.KudosNames.JSON_ADAPTER_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_IGNORE_NAME
+import com.kanyun.kudos.compiler.KudosNames.KUDOS_NAME
+import com.kanyun.kudos.compiler.KudosNames.TRANSIENT_NAME
 import com.kanyun.kudos.compiler.k2.diagnostic.KudosKtErrors
 import com.kanyun.kudos.compiler.k2.utils.initializedWithThisReference
 import com.kanyun.kudos.compiler.k2.utils.isLazyCall
@@ -67,7 +67,7 @@ class KudosFirClassChecker(
     private val noArgAnnotations: List<String>,
 ) : FirClassChecker() {
     override fun check(declaration: FirClass, context: CheckerContext, reporter: DiagnosticReporter) {
-        if (declaration.hasAnnotation(ClassId.topLevel(FqName(KUDOS)), context.session)) {
+        if (declaration.hasAnnotation(ClassId.topLevel(KUDOS_NAME), context.session)) {
             if (declaration.typeParameters.isNotEmpty()) {
                 reporter.reportOn(declaration.source, KudosKtErrors.GENERIC_TYPE, context)
             } else {
@@ -110,7 +110,7 @@ class KudosFirClassChecker(
         context: CheckerContext,
         reporter: DiagnosticReporter,
     ) {
-        if (declaration.hasAnnotation(ClassId.topLevel(FqName(JSON_ADAPTER)), context.session)) {
+        if (declaration.hasAnnotation(ClassId.topLevel(JSON_ADAPTER_NAME), context.session)) {
             reporter.reportOn(declaration.source, KudosKtErrors.CONFLICTS_WITH_JSON_ADAPTER, context)
         }
     }
@@ -173,8 +173,8 @@ class KudosFirClassChecker(
         reporter: DiagnosticReporter,
     ) {
         if (symbol.hasBackingField && !symbol.hasDelegate &&
-            !symbol.hasAnnotation(ClassId.topLevel(FqName(KUDOS_IGNORE)), context.session) &&
-            symbol.backingFieldSymbol?.hasAnnotation(ClassId.topLevel(FqName(TRANSIENT)), context.session) != true
+            !symbol.hasAnnotation(ClassId.topLevel(KUDOS_IGNORE_NAME), context.session) &&
+            symbol.backingFieldSymbol?.hasAnnotation(ClassId.topLevel(TRANSIENT_NAME), context.session) != true
         ) {
             for (type in findNonKudosType(symbol.resolvedReturnType, context)) {
                 reporter.reportOn(
@@ -211,7 +211,7 @@ class KudosFirClassChecker(
         if (annotations != null) {
             for (annotation in annotations) {
                 val fqName = annotation.fqName(context.session) ?: continue
-                if (fqName.asString() == KUDOS) {
+                if (fqName.asString() == KUDOS_NAME.asString()) {
                     return emptyList()
                 }
             }
