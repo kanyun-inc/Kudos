@@ -21,9 +21,11 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
-class KudosIrGenerationExtension : IrGenerationExtension {
+class KudosIrGenerationExtension(
+    private val kudosAnnotationValueMap: HashMap<String, List<Int>>,
+) : IrGenerationExtension {
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        moduleFragment.acceptVoid(KudosIrTransformer(pluginContext))
+        moduleFragment.acceptVoid(KudosIrTransformer(pluginContext, kudosAnnotationValueMap))
     }
 }

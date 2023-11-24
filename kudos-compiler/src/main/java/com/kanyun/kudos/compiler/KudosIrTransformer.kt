@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
  */
 class KudosIrTransformer(
     private val context: IrPluginContext,
+    private val kudosAnnotationValueMap: HashMap<String, List<Int>>,
 ) : IrElementVisitorVoid {
     private val noArgConstructors = mutableMapOf<IrClass, IrConstructor>()
 
@@ -41,6 +42,6 @@ class KudosIrTransformer(
         if (declaration.kind != ClassKind.CLASS) return
         if (!declaration.hasKudosAnnotation()) return
 
-        KudosIrClassTransformer(context, declaration, noArgConstructors).transform()
+        KudosIrClassTransformer(context, declaration, noArgConstructors, kudosAnnotationValueMap).transform()
     }
 }

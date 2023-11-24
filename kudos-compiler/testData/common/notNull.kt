@@ -1,3 +1,5 @@
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl
+
 // SOURCE
 {{deserialize}}
 // FILE: Main.kt [MainKt#main]
@@ -5,6 +7,7 @@ import com.kanyun.kudos.annotations.Kudos
 import com.kanyun.kudos.collections.KudosCollection
 import com.kanyun.kudos.collections.KudosList
 import com.kanyun.kudos.collections.KudosSet
+import com.kanyun.kudos.json.reader.adapter.ParameterizedTypeImpl
 
 @Kudos
 data class User(val id: Long, val name: String, val age: Int = 10) {
@@ -28,18 +31,24 @@ class Arrays(
     }
 }
 
+@Kudos
+class Project(val id: Int,val projectDesc: Desc)
+
+@Kudos
+class Desc(val des: String)
+
 fun main() {
     deserialize<User>("""{}""")
     deserialize<User>("""{"id": 10}""")
-    deserialize<User>("""{"name": "Bod"}""")
-    deserialize<List<User>>("""[{"id": 10}, {"id": 11}]""")
-    deserialize<KudosCollection<User>>("""[{"id": 10, "name": "Bob"}]""")
-    deserialize<KudosCollection<User>>("""[null]""")
-    deserialize<KudosList<User>>("""[null]""")
-    deserialize<KudosSet<User>>("""[null]""")
+    deserialize<User>("""{"name": "Bob"}""")
+    deserialize<List<User>>("""[{"id": 10}, {"id": 11}]""", ParameterizedTypeImpl(List::class.java, arrayOf(User::class.java)))
+    deserialize<KudosCollection<User>>("""[{"id": 10, "name": "Bob"}]""", ParameterizedTypeImpl(KudosCollection::class.java, arrayOf(User::class.java)))
+    deserialize<KudosCollection<User>>("""[null]""", ParameterizedTypeImpl(KudosCollection::class.java, arrayOf(User::class.java)))
+    deserialize<KudosList<User>>("""[null]""", ParameterizedTypeImpl(KudosList::class.java, arrayOf(User::class.java)))
+    deserialize<KudosSet<User>>("""[null]""", ParameterizedTypeImpl(KudosSet::class.java, arrayOf(User::class.java)))
 
     // Maybe supported with Java 8 annotated type. But ... not the moment.
-    deserialize<List<User>>("""[null]""")
+    deserialize<List<User>>("""[null]""", ParameterizedTypeImpl(List::class.java, arrayOf(User::class.java)))
     deserialize<User>("""{"name": "Bob"}""")
     deserialize<User>("""{"id": 10, "name": "Bob"}""")
 

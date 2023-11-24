@@ -6,10 +6,10 @@
 
 # Kudos
 
-**Kudos** 是 **K**otlin **u**tilities for **d**eserializing **o**bjects 的缩写。它可以解决使用 Gson、Jackson 等框架反序列化 JSON 到 Kotlin 类时所存在的空安全问题和构造器默认值失效的问题。
+**Kudos** 是 **K**otlin **u**tilities for **d**eserializing **o**bjects 的缩写。它可以解决使用 Gson、Jackson 等框架反序列化 JSON 到 Kotlin 类时所存在的空安全问题和构造器默认值失效的问题，同时可以简化高性能的反序列化框架 JsonReader 的使用方式。
 
 ## 问题背景
-
+### 空安全与默认值问题
 在使用常见的 JSON 序列化框架解析 JSON 时，Kotlin 开发者通常会面临无参构造器和属性空安全的问题。接下来我们通过举例来具体说明这几个问题。
 
 ```kotlin
@@ -99,6 +99,11 @@ User(id=12, name=Benny Huo, age=0, tel=null)
 
 我们当时就一直在想，有没有什么办法为 Gson 这样的框架提供类型空安全和支持主构造器的参数默认值的能力呢？答案就是 **Kudos**。
 
+### 性能问题
+在实际使用中可以发现，Gson, Moshi 等功能强大的框架在性能上并没有很大优势，而系统原生的 JsonReader 在性能上却有着明显的优势，尤其是在冷启动阶段代码未经过充分 JIT 优化时。但是，JsonReader 的使用成本很高，需要开发者自己手动解析 JSON ，这对于大部分开发者来说是不友好的。
+
+为此，Kudos 通过自定义编译器插件的方式，为开发者提供了一种简单的方式来使用 JsonReader，同时保证了类型空安全和主构造器参数默认值的功能。
+
 ## 快速上手
 
 ### 1. 将 Kudos 集成到 Gradle 项目中
@@ -163,6 +168,8 @@ kudos {
     gson = true
     // 启用 Kudos.Jackson. 添加 kudos-jackson 依赖.
     jackson = true
+    // 启用 Kudos.AndroidJsonReader. 添加 kudos-android-json-reader 依赖.
+    androidJsonReader = true
 }
 ````
 
@@ -177,6 +184,9 @@ com.kanyun.kudos:kudos-gson
 
 // 仅当启用 Kudos.Jackson 时
 com.kanyun.kudos:kudos-jackson
+
+// 仅当启用 Kudos.AndroidJsonReader 时
+com.kanyun.kudos:kudos-android-json-reader
 ```
 
 当然，开发者也可以在合适的场景下手动引入这些依赖。
@@ -322,6 +332,18 @@ println(user) // User(id=12, name=Benny Huo, age=-1, tel=)
 
 如果 JSON 中缺少 id 或者 name 字段，则解析失败，确保 User 属性的类型空安全。
 
+`Kudos`注解也支持添加`KUDOS_GSON`, `KUDOS_JACKSON`, `KUDOS_ANDROID_JSON_READER`等参数, 开启对指定库的支持, 也支持同时传递多个参数，例如：
+
+```kotlin
+@Kudos(KUDOS_GSON, KUDOS_ANDROID_JSON_READER)
+data class User(
+    val id: Long,
+    val name: String,
+    val age: Int = -1,
+    val tel: String = ""
+)
+```
+
 ### 4. 集合类型的支持
 
 被 `@Kudos` 标注的类的属性类型如果是集合类型，包括 `List`、`Set` 等，解析之后会在 `validate` 函数中校验元素是否为 `null` 来确保类型空安全。但如果要解析的类型是 `List<User>`，Kudos 在运行时会因为无法获取到元素类型是否可空而无法提供类型空安全的保证。
@@ -343,12 +365,25 @@ val list = kudosGson().fromJson("""[null]""", typeOf<KudosList<User>>().javaType
 
 在解析 JSON 时，考虑到冷启动的初始化耗时的情况，Kudos.Gson 比 Moshi 在大部分测试下性能更优（只有在多次解析同一数据类型时 Moshi 性能表现更好），因此 Kudos.Gson 在低频次的 JSON 解析场景下兼具了运行性能（优于 Moshi）和数据安全（优于 Gson）的优点。
 
-|               | small json     | medium json    | large json     |
-|---------------|----------------|----------------|----------------|
-| Gson          | 412,375   ns   | 1,374,838   ns | 3,641,904   ns |
-| Kudos-Gson    | 517,123   ns   | 1,686,568   ns | 4,311,910   ns |
-| Jackson       | 1,035,010   ns | 1,750,709   ns | 3,450,974   ns |
-| Kudos-Jackson | 1,261,026   ns | 2,030,874   ns | 3,939,600   ns |
+### 多次运行测试结果
+|                  | small json     | medium json    | large json     |
+|------------------|----------------|----------------|----------------|
+| Gson             | 412,375   ns   | 1,374,838   ns | 3,641,904   ns |
+| Kudos-Gson       | 517,123   ns   | 1,686,568   ns | 4,311,910   ns |
+| Jackson          | 1,035,010   ns | 1,750,709   ns | 3,450,974   ns |
+| Kudos-Jackson    | 1,261,026   ns | 2,030,874   ns | 3,939,600   ns |
+| JsonReader       | 190,302   ns   | 1,176,479   ns | 3,464,174   ns |
+| Kudos-JsonReader | 215,974   ns   | 1,359,587   ns | 4,019,024   ns |
+
+### 一次运行测试结果
+|                  | small json      | medium json     | large json      |
+|------------------|-----------------|-----------------|-----------------|
+| Gson             | 3,974,219   ns  | 4,666,927   ns  | 8,271,355   ns  |
+| Kudos-Gson       | 4,531,718   ns  | 6,244,479   ns  | 11,160,782   ns |
+| Jackson          | 12,821,094   ns | 13,930,625   ns | 15,989,791   ns |
+| Kudos-Jackson    | 13,233,750   ns | 15,674,010   ns | 18,641,302   ns |
+| JsonReader       | 662,032   ns    | 2,056,666   ns  | 4,624,687   ns  |
+| Kudos-JsonReader | 734,907   ns    | 2,362,010   ns  | 6,212,917   ns  |
 
 更多细节可见：[https://github.com/RicardoJiang/json-benchmark](https://github.com/RicardoJiang/json-benchmark)
 

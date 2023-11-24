@@ -42,3 +42,5 @@ fun kudosObjectMapper(
     }
     return ObjectMapper(jf, sp, deserializationContext)
 }
+
+const val KUDOS_JACKSON: Int = 2
