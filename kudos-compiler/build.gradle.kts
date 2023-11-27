@@ -41,7 +41,7 @@ dependencies {
     testImplementation(project(":android-json-reader"))
     testImplementation("org.jetbrains.kotlin:kotlin-noarg:1.8.20")
     testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable")
-    testImplementation("com.bennyhuo.kotlin:kotlin-compile-testing-extensions:1.8.20-1.2.3-SNAPSHOT")
+    testImplementation("com.bennyhuo.kotlin:kotlin-compile-testing-extensions:1.8.20-1.2.3")
 }
 
 val compileKotlin: KotlinCompile by tasks
