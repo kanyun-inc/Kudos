@@ -113,7 +113,7 @@ private fun parseKudosObjectSpecial(
     type: Type,
     typeArguments: Array<Type>,
 ): Any {
-    return if (type.typeName.endsWith("[]")) {
+    return if (type.toString().startsWith("class [")) {
         parseKudosArray(jsonReader, typeArguments)
     } else if (type is Class<*>) {
         val adapter = type.getDeclaredConstructor().newInstance()
